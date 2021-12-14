@@ -1,7 +1,7 @@
 name: HGT
 channels:
-  - bioconda
   - bfurneaux
+  - bioconda
   - conda-forge
   - defaults
 dependencies:
@@ -64,10 +64,12 @@ dependencies:
   - libzlib=1.2.11=h36c2ea0_1013
   - lz4-c=1.9.3=h9c3ff4c_1
   - make=4.3=hd18ef5c_1
+  - mummer=3.23=pl5262h1b792b2_12
   - ncurses=6.2=h58526e2_4
   - openssl=1.1.1l=h7f98852_0
   - pango=1.42.4=h7062337_4
   - pcre=8.45=h9c3ff4c_0
+  - perl=5.26.2=h14c3975_0
   - pip=21.3.1=pyhd8ed1ab_0
   - pixman=0.38.0=h516909a_1003
   - pthread-stubs=0.4=h36c2ea0_1001
