@@ -1,28 +1,28 @@
-setwd("/home/m.sheinman/Development/HGTnew/")
-files <- list.files(path="/home/m.sheinman/Development/HGTnew/data/processed/EscherichiaColi/",pattern=paste("*.fasta$"), full.names = TRUE)
+setwd("~/HGTnew/")
+files <- list.files(path="~/HGTnew/data/processed/EscherichiaColi/",pattern=paste("*.fasta$"), full.names = TRUE)
 foreach (file = files) %do%
 {
-  system(paste0("/home/m.sheinman/Development/Software/seqkit/seqkit seq -m 40000 ",file," > ",file,".4e4.fasta"))
+  system(paste0("seqkit seq -m 40000 ",file," > ",file,".4e4.fasta"))
 }
 
-sed -i '/^$/d' /home/m.sheinman/Development/HGTnew/data/processed/EscherichiaColi/*.fasta
-sed -i '/^$/d' /home/m.sheinman/Development/HGTnew/data/processed/KlebsiellaPneumoniae/*.fasta
+sed -i '/^$/d' ~/HGTnew/data/processed/EscherichiaColi/*.fasta
+sed -i '/^$/d' ~/HGTnew/data/processed/KlebsiellaPneumoniae/*.fasta
 
 
 # export OPENBLAS_NUM_THREADS=1
 # export GOTO_NUM_THREADS=1
 # export OMP_NUM_THREADS=1
-setwd("/home/m.sheinman/Development/HGTnew/")
+setwd("~/HGTnew/")
 library(base)
 library(foreach)
 require(doParallel)
 registerDoParallel(30)
 library(stringr)
 library(seqinr)
-setwd("/home/m.sheinman/Development/HGTnew/")
-write("", paste0("/home/m.sheinman/Development/HGTnew/data/processed/Command.txt"),append=FALSE)
-files1 <- Sys.glob(file.path("/home/m.sheinman/Development/HGTnew","data","processed","EscherichiaColi","*EscherichiaColi_*.fasta"))
-files2 <- Sys.glob(file.path("/home/m.sheinman/Development/HGTnew","data","processed","KlebsiellaPneumoniae","*KlebsiellaPneumoniae_*.fasta"))
+setwd("~/HGTnew/")
+write("", paste0("~/HGTnew/data/processed/Command.txt"),append=FALSE)
+files1 <- Sys.glob(file.path("~/HGTnew","data","processed","EscherichiaColi","*EscherichiaColi_*.fasta"))
+files2 <- Sys.glob(file.path("~/HGTnew","data","processed","KlebsiellaPneumoniae","*KlebsiellaPneumoniae_*.fasta"))
 foreach (i = 1:length(files1)) %dopar%
 {
   sample_i <- strsplit(files1[i],"/")[[1]];sample_i <- sample_i[length(sample_i)];sample_i <- str_replace(sample_i,".fasta","")
@@ -30,14 +30,14 @@ foreach (i = 1:length(files1)) %dopar%
   foreach (j = 1:length(files2)) %do%
   {
     sample_j <- strsplit(files2[j],"/")[[1]];sample_j <- sample_j[length(sample_j)];sample_j <- str_replace(sample_j,".fasta","")
-    Command <- paste0("/home/m.sheinman/Development/Software/mummer-4.0.0rc1/bin/mummer -maxmatch -b -l 300 -qthreads 1 -threads 1 -F ",
-                      files1[i]," ",files2[j]," > /home/m.sheinman/Development/HGTnew/data/processed/mummer/EscherichiaColi_KlebsiellaPneumoniae/",sample_i,"_",sample_j,".mumm")
+    Command <- paste0("mummer -maxmatch -b -n -l 300 -qthreads 1 -threads 1 -F ",
+                      files1[i]," ",files2[j]," > ~/HGTnew/data/processed/mummer/EscherichiaColi_KlebsiellaPneumoniae/",sample_i,"_",sample_j,".mumm")
     system(Command)
   }
 }
 
-setwd("/home/m.sheinman/Development/HGTnew/")
-files <- Sys.glob(file.path("/home/m.sheinman/Development/HGTnew/data/processed/mummer/EscherichiaColi_KlebsiellaPneumoniae","*.mumm"))
+setwd("~/HGTnew/")
+files <- Sys.glob(file.path("~/HGTnew/data/processed/mummer/EscherichiaColi_KlebsiellaPneumoniae","*.mumm"))
 for (i in 1:length(files)) 
 {
   if (!file.exists(paste0(files[i],".h")))
@@ -54,9 +54,9 @@ for (i in 1:length(files))
 }
 
 
-setwd("/home/m.sheinman/Development/HGTnew/")
+setwd("~/HGTnew/")
 files1 <- Sys.glob(file.path(".","data","processed","EscherichiaColi","*EscherichiaColi_*.fasta"))
-files2 <- Sys.glob(file.path("/home/m.sheinman/Development/HGTnew","data","processed","KlebsiellaPneumoniae","*KlebsiellaPneumoniae_*.fasta"))
+files2 <- Sys.glob(file.path("~/HGTnew","data","processed","KlebsiellaPneumoniae","*KlebsiellaPneumoniae_*.fasta"))
 for (i in 1:length(files2)) 
 {
   print(i)
@@ -70,7 +70,7 @@ for (i in 1:length(files2))
 
 
 
-setwd("/home/m.sheinman/Development/HGTnew/")
+setwd("~/HGTnew/")
 library(base)
 library(foreach)
 require(doParallel)
@@ -81,7 +81,7 @@ library(plotrix)
 library(ComplexHeatmap)
 Prefactor <- data.frame()
 files1 <- Sys.glob(file.path(".","data","processed","EscherichiaColi","*EscherichiaColi_*.fasta"))
-files2 <- Sys.glob(file.path("/home/m.sheinman/Development/HGTnew/data/processed/KlebsiellaPneumoniae/*KlebsiellaPneumoniae_*.fasta"))
+files2 <- Sys.glob(file.path("~/HGTnew/data/processed/KlebsiellaPneumoniae/*KlebsiellaPneumoniae_*.fasta"))
 for (i in 1:length(files1)) 
 {
   Li <- read.table(paste0(files1[i],".L"))$V1
