@@ -1,12 +1,27 @@
 setwd("~/HGTnew/")
-files <- list.files(path="~/HGTnew/data/processed/EscherichiaColi/",pattern=paste("*.fasta$"), full.names = TRUE)
+
+args = commandArgs(trailingOnly=TRUE)
+if (length(args) < 1 | args[1] == '--help'){
+  message("usage: downloadGenBank.R species1 species2")
+  stop()
+}
+
+species1=args[1]
+species2=args[2]
+
+species1_dir=paste("~/HGTnew/data/processed/",species1,sep="")
+species2_dir=paste("~/HGTnew/data/processed/",species2,sep="")
+
+
+files <- list.files(path=paste0("~/HGTnew/data/processed/",species1,"/"),
+                    pattern=paste("*.fasta$"), full.names = TRUE)
 foreach (file = files) %do%
 {
   system(paste0("seqkit seq -m 40000 ",file," > ",file,".4e4.fasta"))
 }
 
-sed -i '/^$/d' ~/HGTnew/data/processed/EscherichiaColi/*.fasta
-sed -i '/^$/d' ~/HGTnew/data/processed/KlebsiellaPneumoniae/*.fasta
+#sed -i '/^$/d' ~/HGTnew/data/processed/EscherichiaColi/*.fasta
+#sed -i '/^$/d' ~/HGTnew/data/processed/KlebsiellaPneumoniae/*.fasta
 
 
 # export OPENBLAS_NUM_THREADS=1
@@ -21,8 +36,8 @@ library(stringr)
 library(seqinr)
 setwd("~/HGTnew/")
 write("", paste0("~/HGTnew/data/processed/Command.txt"),append=FALSE)
-files1 <- Sys.glob(file.path("~/HGTnew","data","processed","EscherichiaColi","*EscherichiaColi_*.fasta"))
-files2 <- Sys.glob(file.path("~/HGTnew","data","processed","KlebsiellaPneumoniae","*KlebsiellaPneumoniae_*.fasta"))
+files1 <- Sys.glob(file.path("~/HGTnew","data","processed",species1,paste0("*",species1,"_*.fasta")))
+files2 <- Sys.glob(file.path("~/HGTnew","data","processed",species2,paste0("*",species2,"_*.fasta")))
 foreach (i = 1:length(files1)) %dopar%
 {
   sample_i <- strsplit(files1[i],"/")[[1]];sample_i <- sample_i[length(sample_i)];sample_i <- str_replace(sample_i,".fasta","")
@@ -30,14 +45,15 @@ foreach (i = 1:length(files1)) %dopar%
   foreach (j = 1:length(files2)) %do%
   {
     sample_j <- strsplit(files2[j],"/")[[1]];sample_j <- sample_j[length(sample_j)];sample_j <- str_replace(sample_j,".fasta","")
-    Command <- paste0("mummer -maxmatch -b -n -l 300 -qthreads 1 -threads 1 -F ",
-                      files1[i]," ",files2[j]," > ~/HGTnew/data/processed/mummer/EscherichiaColi_KlebsiellaPneumoniae/",sample_i,"_",sample_j,".mumm")
+    Command <- paste0("mummer -maxmatch -b -n -l 300 -F ",
+                      files1[i]," ",files2[j]," > ~/HGTnew/data/processed/mummer/",species1,"_,",
+                      species2,"/",sample_i,"_",sample_j,".mumm")
     system(Command)
   }
 }
 
 setwd("~/HGTnew/")
-files <- Sys.glob(file.path("~/HGTnew/data/processed/mummer/EscherichiaColi_KlebsiellaPneumoniae","*.mumm"))
+files <- Sys.glob(file.path(paste0("~/HGTnew/data/processed/mummer/",species1,"_",species2,"*.mumm")))
 for (i in 1:length(files)) 
 {
   if (!file.exists(paste0(files[i],".h")))
@@ -55,8 +71,13 @@ for (i in 1:length(files))
 
 
 setwd("~/HGTnew/")
-files1 <- Sys.glob(file.path(".","data","processed","EscherichiaColi","*EscherichiaColi_*.fasta"))
-files2 <- Sys.glob(file.path("~/HGTnew","data","processed","KlebsiellaPneumoniae","*KlebsiellaPneumoniae_*.fasta"))
+
+
+files1 <- Sys.glob(file.path("~/HGTnew","data","processed",species1,paste0("*",species1,"_*.fasta")))
+files2 <- Sys.glob(file.path("~/HGTnew","data","processed",species2,paste0("*",species2,"_*.fasta")))
+
+# files1 <- Sys.glob(file.path(".","data","processed","EscherichiaColi","*EscherichiaColi_*.fasta"))
+# files2 <- Sys.glob(file.path("~/HGTnew","data","processed","KlebsiellaPneumoniae","*KlebsiellaPneumoniae_*.fasta"))
 for (i in 1:length(files2)) 
 {
   print(i)
@@ -67,7 +88,7 @@ for (i in 1:length(files2))
 
 
 
-
+### All what is above is to compute the comparisons. I'd rather use a snakemake pipeline
 
 
 setwd("~/HGTnew/")
