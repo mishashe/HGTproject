@@ -4,8 +4,8 @@ CONDA_FILE2: ./envs/mypy27.yml
 DATA_DIR: /cbio/donnees/fmassip/HGT/ProjectMisha/HGTnew/data
 CODE_DIR: /cbio/donnees/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/
 
-SPECIES: ["EscherichiaColi","Salmonella"]
-
+SPECIES1: EscherichiaColi
+SPECIES2: Salmonella
 
 
 #NB_COV: ["0","5"]
