@@ -12,6 +12,7 @@ if (length(args) < 1 | args[1] == '--help'){
 }
 
 species=args[1]
+country_file=args[2]
 
 
 # import data from JGI
@@ -43,11 +44,11 @@ for (country in countries)
     write(seq, paste0(species_dir,"/",species,"_",country,".fasta"),append=TRUE)
     print(paste0(i," from ",length(ACCN)))
     i <- i+5
-  }
+    }
 }
 restez_disconnect()
 
-
+write.table(x = countries,file = country_file)
 
 
 
