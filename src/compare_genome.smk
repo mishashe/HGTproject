@@ -14,23 +14,34 @@ COUNTRIES=["USA","France"]
 
 rule all:
 	input:
-		expand("{DATA_DIR}/processed/mummer/{SPECIES1}_{COUNTRY1}_{SPECIES2}_{COUNTRY2}.mum",SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"],DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES,COUNTRY2=COUNTRIES),
+#		expand("{DATA_DIR}/processed/mummer/{SPECIES1}_{COUNTRY1}_{SPECIES2}_{COUNTRY2}.mum",SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"],DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES,COUNTRY2=COUNTRIES),
 #		expand("{DATA_DIR}/processed/{SPECIES1}/{SPECIES1}_USA.fasta",SPECIES1=config["SPECIES1"],DATA_DIR=config["DATA_DIR"]),
 #		expand("{DATA_DIR}/processed/{SPECIES2}/{SPECIES2}_USA.fasta",SPECIES2=config["SPECIES2"],DATA_DIR=config["DATA_DIR"])
-		expand("{DATA_DIR}/processed/{SPECIES}/{SPECIES}_{COUNTRY}.fasta",SPECIES=SPECIES,DATA_DIR=config["DATA_DIR"],COUNTRY=COUNTRIES)
+#		expand("{DATA_DIR}/processed/{SPECIES}/{SPECIES}_{COUNTRY}.fasta",SPECIES=SPECIES,DATA_DIR=config["DATA_DIR"],COUNTRY=COUNTRIES),
+i#		expand("{DATA_DIR}/processed/mummer/{SPECIES1}_{SPECIES2}/list_files.txt",SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"],DATA_DIR=config["DATA_DIR"]),
+		expand("{DATA_DIR}/processed/{SPECIES}_country_file.txt",DATA_DIR=config["DATA_DIR"],SPECIES=config["SPECIES1"]),
+		expand("{DATA_DIR}/processed/{SPECIES}_country_file.txt",DATA_DIR=config["DATA_DIR"],SPECIES=config["SPECIES2"])
 
 
 rule DownloadSP:
 	input:
-		csvSP1=expand("{DATA_DIR}/external/{{SPECIES}}.csv",DATA_DIR=config["DATA_DIR"]),
+		csvSP1=expand("{DATA_DIR}/external/{{SPECIES}}.csv",DATA_DIR=config["DATA_DIR"])
 	output:
-		fastaSp1=expand("{DATA_DIR}/processed/{{SPECIES}}/{{SPECIES}}_{{COUNTRY}}.fasta",DATA_DIR=config["DATA_DIR"]),
-
+#		fastaSp1=expand("{DATA_DIR}/processed/{{SPECIES}}/{{SPECIES}}_{{COUNTRY}}.fasta",DATA_DIR=config["DATA_DIR"]),
+#		countries=expand("{DATA_DIR}/processed/{{SPECIES}}_country_file.txt",DATA_DIR=config["DATA_DIR"]),
+		fasta=directory(config["DATA_DIR"]+"/processed/{SPECIES}")
 	conda:
 		config["CONDA_FILE"]
 	shell:
-		"""Rscript {config[CODE_DIR]}/downloadGenBank.R {wildcards.SPECIES}"""
+		"""Rscript {config[CODE_DIR]}/downloadGenBank.R {wildcards.SPECIES} {output.countries}"""
 
+
+## Another try to construct a paralellizable rule
+def listFile(wildcards):
+	checkpoint_output = checkpoints.DownloadSP.get(**wildcards).output[0]
+	return expand("{DATA_DIR}/{SPECIES}/{filename}.fasta",DATA_DIR=config["DATA_DIR"],
+		SPECIES=wildcards.SPECIES,
+		i=glob_wildcards(os.path.join(checkpoint_output, "{filename}.fasta")).{filename})
 
 ####
 ####  Stopped here: I need to find a way to have inputs and outputs that are list of samples from different countries....
@@ -39,100 +50,30 @@ rule DownloadSP:
 
 rule mummer:
 	input:
-		fastaSp2=expand("{DATA_DIR}/processed/{{SPECIES1}}/{{SPECIES1}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR"]),
-		fastaSp1=expand("{DATA_DIR}/processed/{{SPECIES2}}/{{SPECIES2}}_{{COUNTRY2}}.fasta",DATA_DIR=config["DATA_DIR"])
+#		countriesSp1=expand("{DATA_DIR}/processed/{{SPECIES1}}_country_file.txt",DATA_DIR=config["DATA_DIR"]),
+#		countriesSp2=expand("{DATA_DIR}/processed/{{SPECIES2}}_country_file.txt",DATA_DIR=config["DATA_DIR"])
+		listFile
 	output:
-		mum=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{COUNTRY1}}_{{SPECIES2}}_{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"])
+		listmum=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/list_files.txt",DATA_DIR=config["DATA_DIR"])
 	conda:
 		config["CONDA_FILE"]
 	shell:
-		"""mummer -n -l 300 -b -maxmatch {input.fastaSp1} {input.fastaSp2}""" 
+		"""mkdir -p ~/HGTnew/data/mummer/$sp1\_$sp2/
+		echo "" >$out
+		mummer -maxmatch -b -n -l 300 -F \
+		~/HGTnew/data/processed/$sp1/$sp1\_$i\.fasta \
+		~/HGTnew/data/processed/$sp2/$sp2\_$j\.fasta \
+		>~/HGTnew/data/mummer/$sp1\_$sp2/$sp1\_$i\_$sp2\_$j.mum
+		sed '/^>/ d' ~/HGTnew/data/mummer/$sp1\_$sp2/$sp1\_$i\_$sp2\_$j.mum |\
+		sed 's/.* //' |sort -n \
+		>~/HGTnew/data/mummer/$sp1\_$sp2/$sp1\_$i\_$sp2\_$j.mum.h
+		echo $sp1 $i $p2 $j >>$out"""
 
 
-#rule peer:
-#	input:
-#		config["QTL_DIR"]  + "results_on_"+config["EXP_FILE"]+"/prepared_for_peer-smoking-grad_and_PacksYear.RData"
-#	output:
-#		pdf=expand("{QTL_DIR}results_on_{EXP_FILE}/{PEER_DIR}{{QQNORM}}/{{NASAL}}/peer_whole_data_cov_{{NB_COV}}.pdf",QTL_DIR=config["QTL_DIR"],PEER_DIR=config["PEER_DIR"],EXP_FILE=config["EXP_FILE"]),
-#		residuals=expand("{QTL_DIR}results_on_{EXP_FILE}/{PEER_DIR}{{QQNORM}}/{{NASAL}}/residuals_peer_all_samples_cov_{{NB_COV}}.txt",QTL_DIR=config["QTL_DIR"],PEER_DIR=config["PEER_DIR"],EXP_FILE=config["EXP_FILE"])
-#	params:
-#		outdir=config["QTL_DIR"]+config["PEER_DIR"]
-#	conda:
-#		config["CONDA_FILE"]
-#	shell:
-#		"""mkdir -p {params.outdir}/{wildcards.QQNORM};
-#		Rscript  {config[QTL_DIR]}scripts/peer.R {input} {output.residuals} {output.pdf} {wildcards.NB_COV} {wildcards.QQNORM} {wildcards.NASAL} 2>logs/peer_log_{wildcards.NB_COV}_{wildcards.QQNORM}""" 
-#
-##prepare the genotype data in an R object -- Remove colinear snps or snps w/ too low MAF in the pop, and format it for matrixeQTL
-#
-#rule prep_geno_for_eQTL:
-#	input:
-##		geno=config["INPUT"] + "data_dir/all_genotypes.vcf_reformatted",
-##		geno=config["DATA_DIR"] + "fgiorgi_project_folder/LungCancerCure/shared/genotypes/fixed_genotypes.rda",
-##		snpMap=config["DATA_DIR"] + "fgiorgi_project_folder/LungCancerCure/lists/snploc_GRCh37.p13.txt"
-#		geno=config["DATA_DIR"] + "phased_and_imputed_v3/combined_batches/final_genotypes.Rda",
-#		snpMap=config["DATA_DIR"] + "phased_and_imputed_v3/combined_batches/SnpMap.txt"
-##		ID=config["QTL_DIR"] + "ID_equivalent.txt"
-#	output:
-#		config["QTL_DIR"] + "preprocessed_genotypes_clinical_maf_sup0.02.RData"
-#	conda:
-#		config["CONDA_FILE"]
-#	shell:
-#		"""Rscript {config[QTL_DIR]}scripts/create_genotype-clinical_object.R  {input.geno} {input.snpMap}"""
-#
-## Conduct the eQTL analysis
-#
-#rule eQTL:
-#	input:
-#		geno=config["QTL_DIR"] + "preprocessed_genotypes_clinical_maf_sup0.02.RData",
-#		pheno=config["QTL_DIR"]  + "results_on_"+config["EXP_FILE"]+ "/prepared_for_peer-smoking-grad_and_PacksYear.RData",
-#		residuals=expand("{QTL_DIR}results_on_{EXP_FILE}/{PEER_DIR}{{QQNORM}}/{{NASAL}}/residuals_peer_all_samples_cov_{{NB_COV}}.txt",QTL_DIR=config["QTL_DIR"],PEER_DIR=config["PEER_DIR"],EXP_FILE=config["EXP_FILE"])
-#		
-#	output:
-#		pvals=expand("{QTL_DIR}results_on_{EXP_FILE}/res_using_peer_cov-{{NB_COV}}_pval-{{PVAL}}/{{TYPE_PHENO}}-{{MODEL}}-{{COV_TO_TEST}}-{{QQNORM}}-{{NASAL}}/Matrix_eQTL_analysis.txt_cis",QTL_DIR=config["QTL_DIR"],EXP_FILE=config["EXP_FILE"]),
-#		qqplot=expand("{QTL_DIR}results_on_{EXP_FILE}/res_using_peer_cov-{{NB_COV}}_pval-{{PVAL}}/{{TYPE_PHENO}}-{{MODEL}}-{{COV_TO_TEST}}-{{QQNORM}}-{{NASAL}}/Matrix_eQTL_analysis.txt_qqplot.pdf",QTL_DIR=config["QTL_DIR"],EXP_FILE=config["EXP_FILE"])	
-#	conda:
-#		config["CONDA_FILE"]
-#	shell:
-#		"""Rscript {config[QTL_DIR]}scripts/eQTL_after_peer.R {input.geno} {input.pheno}  {wildcards.NB_COV} {wildcards.COV_TO_TEST} {wildcards.PVAL}  {wildcards.TYPE_PHENO} {wildcards.QQNORM} {config[QTL_DIR]}results_on_{config[EXP_FILE]}/res_using_peer_cov-{wildcards.NB_COV}_pval-{wildcards.PVAL}/{wildcards.TYPE_PHENO}-{wildcards.MODEL}-{wildcards.COV_TO_TEST}-{wildcards.QQNORM}-{wildcards.NASAL} {wildcards.MODEL} {wildcards.NASAL} {input.residuals}"""
-#
-#
-#rule genotyped_QTLs:
-#	input:
-#		pvals=expand("{QTL_DIR}results_on_{EXP_FILE}/res_using_peer_cov-{{NB_COV}}_pval-{{PVAL}}/{{TYPE_PHENO}}-{{MODEL}}-{{COV_TO_TEST}}-{{QQNORM}}-{{NASAL}}/Matrix_eQTL_analysis.txt_cis",QTL_DIR=config["QTL_DIR"],EXP_FILE=config["EXP_FILE"]),
-#		snps=config["DATA_DIR"] + "phased_and_imputed_v2/all_chrs_genotyped_SNPs.txt"
-#	output:
-#		pvals_geno=expand("{QTL_DIR}results_on_{EXP_FILE}/res_using_peer_cov-{{NB_COV}}_pval-{{PVAL}}/{{TYPE_PHENO}}-{{MODEL}}-{{COV_TO_TEST}}-{{QQNORM}}-{{NASAL}}/Matrix_eQTL_analysis.txt_cis_geno",QTL_DIR=config["QTL_DIR"],EXP_FILE=config["EXP_FILE"])
-#	conda:
-#		config["CONDA_FILE"]
-#	shell:
-#		"""python3.6 {config[QTL_DIR]}scripts/select_genotyped_SNPs.py --SNP {input.snps} -e {input.pvals} >{output.pvals_geno}"""
-#
-#rule GeneName:
-#	input:
-#		QTLs=expand("{QTL_DIR}results_on_{EXP_FILE}/res_using_peer_cov-{{NB_COV}}_pval-{{PVAL}}/{{TYPE_PHENO}}-{{MODEL}}-{{COV_TO_TEST}}-{{QQNORM}}-{{NASAL}}/Matrix_eQTL_analysis.txt_cis",QTL_DIR=config["QTL_DIR"],EXP_FILE=config["EXP_FILE"]),
-#		QTLs_geno=expand("{QTL_DIR}results_on_{EXP_FILE}/res_using_peer_cov-{{NB_COV}}_pval-{{PVAL}}/{{TYPE_PHENO}}-{{MODEL}}-{{COV_TO_TEST}}-{{QQNORM}}-{{NASAL}}/Matrix_eQTL_analysis.txt_cis_geno",QTL_DIR=config["QTL_DIR"],EXP_FILE=config["EXP_FILE"])
-#	output:
-#		annot=expand("{QTL_DIR}results_on_{EXP_FILE}/res_using_peer_cov-{{NB_COV}}_pval-{{PVAL}}/{{TYPE_PHENO}}-{{MODEL}}-{{COV_TO_TEST}}-{{QQNORM}}-{{NASAL}}/Matrix_eQTL_analysis.txt_cis_w_gene_names",QTL_DIR=config["QTL_DIR"],EXP_FILE=config["EXP_FILE"]),
-#		annot_geno=expand("{QTL_DIR}results_on_{EXP_FILE}/res_using_peer_cov-{{NB_COV}}_pval-{{PVAL}}/{{TYPE_PHENO}}-{{MODEL}}-{{COV_TO_TEST}}-{{QQNORM}}-{{NASAL}}/Matrix_eQTL_analysis.txt_cis_geno_w_gene_names",QTL_DIR=config["QTL_DIR"],EXP_FILE=config["EXP_FILE"])
-#	conda:
-#		config["CONDA_FILE"]
-#	shell:
-#		"""{config[QTL_DIR]}scripts/find_gene_name.sh {input.QTLs} {wildcards.COV_TO_TEST}-{wildcards.PVAL}-{wildcards.QQNORM}-{wildcards.NB_COV}-{wildcards.NASAL}
-#		{config[QTL_DIR]}scripts/find_gene_name.sh {input.QTLs_geno} {wildcards.COV_TO_TEST}-{wildcards.PVAL}-{wildcards.QQNORM}-{wildcards.NB_COV}-{wildcards.NASAL}"""
-#
-#rule PostQTL:
-#	input:
-#		geno=config["QTL_DIR"] + "preprocessed_genotypes_clinical_maf_sup0.02.RData",
-#		pheno=config["QTL_DIR"]  +"results_on_"+config["EXP_FILE"]+ "/prepared_for_peer-smoking-grad_and_PacksYear.RData",
-#		residuals=expand("{QTL_DIR}results_on_{EXP_FILE}/{PEER_DIR}{{QQNORM}}/{{NASAL}}/residuals_peer_all_samples_cov_{{NB_COV}}.txt",QTL_DIR=config["QTL_DIR"],PEER_DIR=config["PEER_DIR"],EXP_FILE=config["EXP_FILE"]),
-#		QTLs=expand("{QTL_DIR}results_on_{EXP_FILE}/res_using_peer_cov-{{NB_COV}}_pval-{{PVAL}}/{{TYPE_PHENO}}-{{MODEL}}-{{COV_TO_TEST}}-{{QQNORM}}-{{NASAL}}/Matrix_eQTL_analysis.txt_cis_w_gene_names",QTL_DIR=config["QTL_DIR"],EXP_FILE=config["EXP_FILE"])
-#	output:
-#		pdf=expand("{QTL_DIR}results_on_{EXP_FILE}/res_using_peer_cov-{{NB_COV}}_pval-{{PVAL}}/{{TYPE_PHENO}}-{{MODEL}}-{{COV_TO_TEST}}-{{QQNORM}}-{{NASAL}}/Matrix_eQTL_analysis.txt_cis_w_gene_names_all_samples_boxplot_Cancer.pdf",QTL_DIR=config["QTL_DIR"],EXP_FILE=config["EXP_FILE"]),
-#	conda:
-#		config["CONDA_FILE"]
-#	shell:
-#		"""Rscript {config[QTL_DIR]}scripts/analysis_post_QTL.R {input.geno} {input.pheno}  {wildcards.NB_COV} {wildcards.COV_TO_TEST} {wildcards.PVAL}  {wildcards.TYPE_PHENO} {wildcards.QQNORM} {input.QTLs} {wildcards.MODEL} {wildcards.NASAL} {input.residuals}"""
-#
-#
-#
+
+#		"""{config[CODE_DIR]}/mummer.sh {wildcards.SPECIES1} {wildcards.SPECIES2}\
+#		{input.countriesSp1} {input.countriesSp2} {output.listmum}""" 
+
+
+
+
