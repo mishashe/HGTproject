@@ -1,7 +1,8 @@
 #CONDA_FILE: ./envs/peer.yml ## Broken env
 CONDA_FILE: ./envs/HGT.yml
 CONDA_FILE2: ./envs/mypy27.yml
-DATA_DIR: /cbio/donnees/fmassip/HGT/ProjectMisha/HGTnew/data
+DATA_DIR_FAST: /cbio/donnees/fmassip/HGT/ProjectMisha/HGTnew/data
+DATA_DIR: /mnt/data3/fmassip/HGT/ProjectMisha/HGTnew/data
 CODE_DIR: /cbio/donnees/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/
 
 SPECIES1: EscherichiaColi
