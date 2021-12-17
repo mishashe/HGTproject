@@ -48,7 +48,7 @@ for (country in countries)
 }
 restez_disconnect()
 
-write.table(x = countries,file = country_file)
+write.table(x = countries,file = country_file,quote=F,row.names = F)
 
 
 
