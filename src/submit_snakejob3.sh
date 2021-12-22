@@ -36,7 +36,7 @@ snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk \
            --use-conda \
 	   --cluster-config config_sge.yml \
 	   --cluster "sbatch -N 1 -c 1 -J Mum  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
-	   --jobs 200 \
+	   --jobs 70 \
 	   --rerun-incomplete \
 #	   --resources cp_cores=10 \
 #	   --latency-wait 30
