@@ -1,0 +1,174 @@
+setwd("~/HGTnew/")
+library(base)
+library(foreach)
+library(stringr)
+library(seqinr)
+library(plotrix)
+library(ComplexHeatmap)
+
+args = commandArgs(trailingOnly=TRUE)
+if (length(args) < 1 | args[1] == '--help'){
+  message("usage: Rscript calculate_A_from_mummer_files.R species1 species2")
+  stop()
+}
+
+species1=args[1]
+species2=args[2]
+
+Prefactor <- data.frame()
+files1 <- Sys.glob(file.path("~/HGTnew","data","processed",species1,paste0("*",species1,"_*.fasta")))
+files2 <- Sys.glob(file.path("~/HGTnew","data","processed",species2,paste0("*",species2,"_*.fasta")))
+
+
+species1_dir=paste("~/HGTnew/data/processed/",species1,sep="")
+species2_dir=paste("~/HGTnew/data/processed/",species2,sep="")
+
+
+# files <- list.files(path=paste0("~/HGTnew/data/processed/",species1,"/"),
+#                     pattern=paste("*.fasta$"), full.names = TRUE)
+# foreach (file = files) %do%
+# {
+#   system(paste0("seqkit seq -m 40000 ",file," > ",file,".4e4.fasta"))
+# }
+
+
+toRm=c()
+for (i in 1:length(files2)) {
+  print(i)
+  size=file.info(files2[i])$size
+  if (size<2){
+    toRm=c(toRm,i)
+  }
+}
+if (length(toRm)>0){
+  files2=files2[-toRm]
+}
+toRm=c()
+for (i in 1:length(files1)) 
+{
+  print(i)
+  size=file.info(files1[i])$size
+  if (size<2){
+    toRm=c(toRm,i)
+  }
+}
+if (length(toRm)>0){
+  files1=files1[-toRm]
+}
+toRm=c()
+
+for (i in 1:length(files1)) {
+  
+  Li <- read.table(paste0(files1[i],".L"))$V1
+  sample_i <- strsplit(files1[i],"/")[[1]];sample_i <- sample_i[length(sample_i)];sample_i <- str_replace(sample_i,".fasta","")
+  country_i <- strsplit(sample_i,"_")[[1]][2]
+  print(sample_i)
+  for (j in 1:length(files2)) 
+  {
+    sample_j <- strsplit(files2[j],"/")[[1]];sample_j <- sample_j[length(sample_j)];sample_j <- str_replace(sample_j,".fasta","")
+    country_j <- strsplit(sample_j,"_")[[1]][2]
+    filename <- Sys.glob(file.path("~/HGTnew/data/processed/mummer*",paste0(species1,"_",species2),
+                                   paste0(species1,'-',country_i,"_",species2,'-',country_j,".h")))
+    if (file.exists(filename) & file.info(filename)$size != 0)
+    {
+      print(paste0(sample_i," ",sample_j))
+      L <- read.table(filename)
+      L <- L[!is.na(as.numeric(L$V2)),]; L$V2 <- as.numeric(L$V2);  L$V1 <- as.numeric(L$V1); 
+      
+      if (nrow(L)>5 & max(L$V2)>300)
+      {
+        Lj <- read.table(paste0(files2[j],".L"))$V1
+        p <- weighted.hist(x=log(L$V2),w=L$V1,breaks=10,plot=FALSE)
+        r <- exp(p$mids)
+        m <- p$counts/diff(exp(p$breaks))/Li/Lj
+        A <- 300*sum(L$V1[L$V2>=300]*L$V2[L$V2>=300])/Li/Lj
+        pdf(paste0("~/HGTnew/plots/",species1,"_",species2,"/",sample_i,"_",sample_j,".pdf"))
+        # plot(r,log10(m));
+        plot(log10(r),log10(m),col="black",pch=3);
+        lines(log10(r),log10(A/r^3))
+        title(paste0(sample_j," ",A))
+        dev.off()
+        Prefactor <- rbind(Prefactor,data.frame(EscherichiaColi=country_i,KlebsiellaPneumoniae=country_j,prefactor=A))
+        countries <- unique(c(Prefactor$EscherichiaColi,Prefactor$KlebsiellaPneumoniae))
+        PrefactorMatrix <- matrix(NA,nrow=length(countries),ncol=length(countries))
+        PrefactorReciprocal <- data.frame()
+        colnames(PrefactorMatrix) <- countries
+        rownames(PrefactorMatrix) <- countries
+        for (country1 in countries)
+        {
+          for (country2 in countries)
+          {
+            Ind <- which(Prefactor$EscherichiaColi==country1 & Prefactor$KlebsiellaPneumoniae==country2)
+            if (length(Ind)>0)
+            {
+              PrefactorMatrix[country1,country2] <- Prefactor$prefactor[Ind]
+            }
+          }
+        }
+        if (!is.na(sd(PrefactorMatrix[!is.na(PrefactorMatrix)])))
+        {
+          pdf(paste0("./plots/",specie1,"_",species2,"/heatmap.pdf"))
+          p <- Heatmap(log10(PrefactorMatrix[rowSums(is.na(PrefactorMatrix))!=ncol(PrefactorMatrix),colSums(is.na(PrefactorMatrix))!=nrow(PrefactorMatrix)]),    
+                       column_names_gp = grid::gpar(fontsize = 5),
+                       row_names_gp = grid::gpar(fontsize = 5),
+                       show_row_names = T,
+                       show_column_names = T,
+                       cluster_columns = F, 
+                       cluster_rows = F, 
+                       row_title=species1,
+                       column_title=species2,
+                       na_col = "black")
+          print(p)
+          dev.off()
+        }
+      }
+    }
+  }
+}
+
+Prefactor <- data.frame()
+for (country1 in rownames(PrefactorMatrix))
+{
+  for (country2 in colnames(PrefactorMatrix))
+  {
+    if (!is.na(PrefactorMatrix[country1,country2]))
+    {
+      Prefactor <- rbind(Prefactor,data.frame(species1=country1,species2=country2,A=log10(PrefactorMatrix[country1,country2]),Same=(country1==country2)))
+    }
+  }
+}
+library(ggpubr)
+pdf(paste0("./plots/",specie1,"_",species2,"/SameDiffCountries.pdf"))
+p <- ggboxplot(Prefactor, x = "Same", y = "A",
+               color = "Same", palette = "jco",
+               add = "jitter")
+p + stat_compare_means(method = "wilcox.test")
+dev.off()
+
+SameCountriesRatios <- c()
+DiffCountriesRatios <- c()
+for (i in 1:nrow(Prefactor))
+{
+  Ind <- which(Prefactor$species1==Prefactor$species2[i] & Prefactor$species2==Prefactor$species1[i])
+  DiffCountriesRatios <- c(DiffCountriesRatios,Prefactor$A[i]-Prefactor$A[-c(Ind,i)])
+  if (length(Ind)==1 & Prefactor$specie1[i]!=Prefactor$species2[i])
+  {
+    SameCountriesRatios <- c(SameCountriesRatios,Prefactor$A[i]-Prefactor$A[Ind])
+  }
+}
+
+DiffCountriesRatios <- sample(DiffCountriesRatios,10000,replace=FALSE)
+
+Ratios <- data.frame(ratios=abs(c(SameCountriesRatios,DiffCountriesRatios)),Same=c(rep("same",length(SameCountriesRatios)),rep("diff",length(DiffCountriesRatios))))
+
+library(ggpubr)
+pdf(paste0("./plots/",specie1,"_",species2,"/Ratios.pdf"))
+p <- ggviolin(Ratios, x = "Same", y = "ratios",
+              draw_quantiles = 0.5,
+               color = "Same", palette = "jco",
+               add = "jitter")
+p + stat_compare_means(method = "wilcox.test")
+dev.off()
+
+
+
