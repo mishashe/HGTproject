@@ -47,22 +47,22 @@ rule all:
 
 
 
-rule cp:
-	input:
-		fasta1=expand("{DATA_DIR}/processed/{{SPECIES1}}/{{SPECIES1}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR"]),
-	output:
-		temp(expand("{DATA_DIR}/processed/{{SPECIES1}}/{{SPECIES1}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR_FAST"]))
-	resources:
-		cp_cores=1
-	shell:
-		"""cp {input.fasta1} {output}
-		sleep 5"""
-
+#rule cp:
+#	input:
+#		fasta1=expand("{DATA_DIR}/processed/{{SPECIES1}}/{{SPECIES1}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR"]),
+#	output:
+#		temp(expand("{DATA_DIR}/processed/{{SPECIES1}}/{{SPECIES1}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR_FAST"]))
+#	resources:
+#		cp_cores=1
+#	shell:
+#		"""cp {input.fasta1} {output}
+#		sleep 5"""
+#
 
 rule mummer:
 	input:
-		fasta1=expand("{DATA_DIR}/processed/{{SPECIES1}}/{{SPECIES1}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR_FAST"]),
-		fasta2=expand("{DATA_DIR}/processed/{{SPECIES2}}/{{SPECIES2}}_{{COUNTRY2}}.fasta",DATA_DIR=config["DATA_DIR_FAST"])
+		fasta1=expand("{DATA_DIR}/processed/{{SPECIES1}}/{{SPECIES1}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR"]),
+		fasta2=expand("{DATA_DIR}/processed/{{SPECIES2}}/{{SPECIES2}}_{{COUNTRY2}}.fasta",DATA_DIR=config["DATA_DIR"])
 #		fasta1=get_file_sp1,
 #		fasta2=get_file_sp2
 	output:
@@ -81,8 +81,8 @@ rule mummer:
 	
 rule mummerHighMem:
 	input:
-		fasta1=expand("{DATA_DIR}/processed/{{SPECIES1}}/{{SPECIES1}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR_FAST"]),
-		fasta2=expand("{DATA_DIR}/processed/{{SPECIES2}}/{{SPECIES2}}_{{COUNTRY2}}.fasta",DATA_DIR=config["DATA_DIR_FAST"])
+		fasta1=expand("{DATA_DIR}/processed/{{SPECIES1}}/{{SPECIES1}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR"]),
+		fasta2=expand("{DATA_DIR}/processed/{{SPECIES2}}/{{SPECIES2}}_{{COUNTRY2}}.fasta",DATA_DIR=config["DATA_DIR"])
 #		fasta1=get_file_sp1,
 #		fasta2=get_file_sp2
 	output:
