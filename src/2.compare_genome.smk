@@ -77,7 +77,7 @@ rule mummer:
 		>{output.mum}
 
 		sed '/^>/ d' {output.mum} |\
-		sed 's/.* //' |sort -n  >{output.h}"""
+		sed 's/.* //' |sort -n |uniq -c >{output.h}"""
 	
 rule mummerHighMem:
 	input:
