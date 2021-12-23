@@ -8,7 +8,7 @@
 
 configfile:"config_dl.yml"
 
-SPECIES=[config["SPECIES1"],config["SPECIES2"]]
+#SPECIES=[config["SPECIES1"],config["SPECIES2"]]
 
 
 rule all:
@@ -18,12 +18,9 @@ rule all:
 #		expand("{DATA_DIR}/processed/{SPECIES2}/{SPECIES2}_USA.fasta",SPECIES2=config["SPECIES2"],DATA_DIR=config["DATA_DIR"])
 #		expand("{DATA_DIR}/processed/{SPECIES}/{SPECIES}_{COUNTRY}.fasta",SPECIES=SPECIES,DATA_DIR=config["DATA_DIR"],COUNTRY=COUNTRIES),
 #		expand("{DATA_DIR}/processed/mummer/{SPECIES1}_{SPECIES2}/list_files.txt",SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"],DATA_DIR=config["DATA_DIR"]),
-		expand("{DATA_DIR}/processed/{SPECIES}-country_file_low_mem.txt",DATA_DIR=config["DATA_DIR"],SPECIES=config["SPECIES1"]),
-		expand("{DATA_DIR}/processed/{SPECIES}-country_file_low_mem.txt",DATA_DIR=config["DATA_DIR"],SPECIES=config["SPECIES2"]),
-		expand("{DATA_DIR}/processed/{SPECIES}-country_file_high_mem.txt",DATA_DIR=config["DATA_DIR"],SPECIES=config["SPECIES1"]),
-		expand("{DATA_DIR}/processed/{SPECIES}-country_file_high_mem.txt",DATA_DIR=config["DATA_DIR"],SPECIES=config["SPECIES2"]),
-		expand("{DATA_DIR}/processed/{SPECIES}/calc_length_done.txt",DATA_DIR=config["DATA_DIR"],SPECIES=config["SPECIES1"]),
-		expand("{DATA_DIR}/processed/{SPECIES}/calc_length_done.txt",DATA_DIR=config["DATA_DIR"],SPECIES=config["SPECIES2"])
+		expand("{DATA_DIR}/processed/{SPECIES}-country_file_low_mem.txt",DATA_DIR=config["DATA_DIR"],SPECIES=config["SPECIES"]),
+		expand("{DATA_DIR}/processed/{SPECIES}-country_file_high_mem.txt",DATA_DIR=config["DATA_DIR"],SPECIES=config["SPECIES"]),
+		expand("{DATA_DIR}/processed/{SPECIES}/calc_length_done.txt",DATA_DIR=config["DATA_DIR"],SPECIES=config["SPECIES"])
 
 
 

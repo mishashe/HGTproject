@@ -1,0 +1,19 @@
+CONDA_FILE: ./envs/HGT.yml
+CONDA_FILE2: ./envs/mypy27.yml
+DATA_DIR_FAST: /cbio/donnees/fmassip/HGT/ProjectMisha/HGTnew/data
+DATA_DIR: /mnt/data3/fmassip/HGT/ProjectMisha/HGTnew/data
+CODE_DIR: /mnt/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/
+
+#SPECIES2: "Salmonella"
+#SPECIES1: "Pseudomonas"
+
+#NB_COV: ["0","5"]
+
+# Pvalue threshold for MatrixEQTL analysis => 10^-5 to get the best candidate, 1 to compute all pvalues and recompute FDRs and so on...
+#PVAL: ["1","1e-05"]
+# Pvalue threshold  to select genes on which we're going to look at the histogramms 
+#PVAL2: ["1e-05"]
+
+SPECIES: ["Pseudomonas","EscherichiaColi", "Staphylococcus",
+"Salmonella","Streptococcus","Mycobacterium","KlebsiellaPneumoniae"]
+
