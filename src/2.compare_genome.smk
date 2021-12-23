@@ -3,8 +3,6 @@
 # Author: F. MASSIP
 # date: 12/14/2021
 #
-# Pipeline to download genomes of different bacteria, compare them, compute the MLD and A for different geographic locations
-#
 
 configfile:"config.yml"
 
@@ -13,12 +11,12 @@ SPECIES=config["SPECIES1"]+ config["SPECIES2"]
 def get_file_sp(s,mem):
 	count_list=[]
 	if mem == "l" or mem == "b":
-		myfile = config["DATA_DIR_FAST"]+"/processed/"+s+"-country_file_low_mem.txt"
+		myfile = config["DATA_DIR"]+"/processed/"+s+"-country_file_low_mem.txt"
 		with open(myfile) as f:
 			for i in f.readlines():
 				count_list.append(i.rstrip())
 	elif mem == "h" or mem == "b" :
-		myfileHM = config["DATA_DIR_FAST"]+"/processed/"+s+"-country_file_high_mem.txt"
+		myfileHM = config["DATA_DIR"]+"/processed/"+s+"-country_file_high_mem.txt"
 		with open(myfileHM) as fHM:
 			for i in fHM.readlines():
 				count_list.append(i.rstrip())
