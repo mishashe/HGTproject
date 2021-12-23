@@ -27,7 +27,7 @@ snakemake -s ~/HGTnew/HGTproject/src/1.download.smk \
            --use-conda \
 	   --cluster-config config_sge.yml \
 	   --cluster "sbatch -N 1 -c 1 -J DL  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
-	   --jobs 2 \
+	   --jobs 1 \
 	   --rerun-incomplete 
 
 snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk -n --unlock
