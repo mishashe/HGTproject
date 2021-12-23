@@ -1,10 +1,12 @@
 setwd("~/HGTnew/")
 library(base)
-library(foreach)
+# library(foreach)
 library(stringr)
 library(seqinr)
 library(plotrix)
 library(ComplexHeatmap)
+library(ggpubr)
+
 
 args = commandArgs(trailingOnly=TRUE)
 if (length(args) < 1 | args[1] == '--help'){
@@ -57,6 +59,8 @@ if (length(toRm)>0){
 }
 toRm=c()
 
+if (file.exists(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,".RData"))==F){
+
 for (i in 1:length(files1)) {
   
   Li <- read.table(paste0(files1[i],".L"))$V1
@@ -69,8 +73,9 @@ for (i in 1:length(files1)) {
     country_j <- strsplit(sample_j,"_")[[1]][2]
     filename <- Sys.glob(file.path("~/HGTnew/data/processed/mummer*",paste0(species1,"_",species2),
                                    paste0(species1,'-',country_i,"_",species2,'-',country_j,".h")))
-    if (file.exists(filename) & file.info(filename)$size != 0)
-    {
+    print(filename)
+    print(paste(sample_i,sample_j))
+    if (length(filename)>0 && file.info(filename)$size > 0){
       print(paste0(sample_i," ",sample_j))
       L <- read.table(filename)
       L <- L[!is.na(as.numeric(L$V2)),]; L$V2 <- as.numeric(L$V2);  L$V1 <- as.numeric(L$V1); 
@@ -88,8 +93,14 @@ for (i in 1:length(files1)) {
         lines(log10(r),log10(A/r^3))
         title(paste0(sample_j," ",A))
         dev.off()
-        Prefactor <- rbind(Prefactor,data.frame(EscherichiaColi=country_i,KlebsiellaPneumoniae=country_j,prefactor=A))
-        countries <- unique(c(Prefactor$EscherichiaColi,Prefactor$KlebsiellaPneumoniae))
+        Prefactor <- rbind(Prefactor,data.frame(species1=country_i,
+                                                species2=country_j,prefactor=A))
+      }
+    }
+  }
+}
+        
+        countries <- unique(c(as.character(Prefactor$species1),as.character(Prefactor$species2)))
         PrefactorMatrix <- matrix(NA,nrow=length(countries),ncol=length(countries))
         PrefactorReciprocal <- data.frame()
         colnames(PrefactorMatrix) <- countries
@@ -98,16 +109,16 @@ for (i in 1:length(files1)) {
         {
           for (country2 in countries)
           {
-            Ind <- which(Prefactor$EscherichiaColi==country1 & Prefactor$KlebsiellaPneumoniae==country2)
+            Ind <- which(Prefactor$species1==country1 & Prefactor$species2==country2)
             if (length(Ind)>0)
             {
-              PrefactorMatrix[country1,country2] <- Prefactor$prefactor[Ind]
+              PrefactorMatrix[country1,country2] = Prefactor$prefactor[Ind]
             }
           }
         }
         if (!is.na(sd(PrefactorMatrix[!is.na(PrefactorMatrix)])))
         {
-          pdf(paste0("./plots/",specie1,"_",species2,"/heatmap.pdf"))
+          pdf(paste0("~/HGTnew/plots/",species1,"_",species2,"/heatmap.pdf"))
           p <- Heatmap(log10(PrefactorMatrix[rowSums(is.na(PrefactorMatrix))!=ncol(PrefactorMatrix),colSums(is.na(PrefactorMatrix))!=nrow(PrefactorMatrix)]),    
                        column_names_gp = grid::gpar(fontsize = 5),
                        row_names_gp = grid::gpar(fontsize = 5),
@@ -120,10 +131,11 @@ for (i in 1:length(files1)) {
                        na_col = "black")
           print(p)
           dev.off()
-        }
-      }
-    }
-  }
+        # }
+      # }
+    # }
+  # 
+  # }
 }
 
 Prefactor <- data.frame()
@@ -137,21 +149,28 @@ for (country1 in rownames(PrefactorMatrix))
     }
   }
 }
-library(ggpubr)
-pdf(paste0("./plots/",specie1,"_",species2,"/SameDiffCountries.pdf"))
-p <- ggboxplot(Prefactor, x = "Same", y = "A",
-               color = "Same", palette = "jco",
-               add = "jitter")
-p + stat_compare_means(method = "wilcox.test")
-dev.off()
+save.image(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,".RData"))
+} else{
+  load(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,".RData"))
+}
 
+pdf(paste0("~/HGTnew/plots/",species1,"_",species2,"/SameDiffCountries.pdf"))
+p <- ggboxplot(Prefactor, x = "Same", y = "A",
+               color = "Same", palette = "jco")+
+  geom_jitter(cex=0.5,aes(col=Same))
+p + stat_compare_means(method = "wilcox.test")
+  dev.off()
+
+  Prefactor$species1=as.character(Prefactor$species1)
+  Prefactor$species2=as.character(Prefactor$species2)
+  
 SameCountriesRatios <- c()
 DiffCountriesRatios <- c()
 for (i in 1:nrow(Prefactor))
 {
   Ind <- which(Prefactor$species1==Prefactor$species2[i] & Prefactor$species2==Prefactor$species1[i])
   DiffCountriesRatios <- c(DiffCountriesRatios,Prefactor$A[i]-Prefactor$A[-c(Ind,i)])
-  if (length(Ind)==1 & Prefactor$specie1[i]!=Prefactor$species2[i])
+  if (length(Ind)==1 & Prefactor$species1[i]!=Prefactor$species2[i])
   {
     SameCountriesRatios <- c(SameCountriesRatios,Prefactor$A[i]-Prefactor$A[Ind])
   }
@@ -161,12 +180,11 @@ DiffCountriesRatios <- sample(DiffCountriesRatios,10000,replace=FALSE)
 
 Ratios <- data.frame(ratios=abs(c(SameCountriesRatios,DiffCountriesRatios)),Same=c(rep("same",length(SameCountriesRatios)),rep("diff",length(DiffCountriesRatios))))
 
-library(ggpubr)
-pdf(paste0("./plots/",specie1,"_",species2,"/Ratios.pdf"))
+
+pdf(paste0("~/HGTnew/plots/",species1,"_",species2,"/Ratios.pdf"))
 p <- ggviolin(Ratios, x = "Same", y = "ratios",
               draw_quantiles = 0.5,
-               color = "Same", palette = "jco",
-               add = "jitter")
+               color = "Same", palette = "jco")+geom_jitter(cex=0.5,aes(col=Same))
 p + stat_compare_means(method = "wilcox.test")
 dev.off()
 
