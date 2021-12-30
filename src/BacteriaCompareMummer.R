@@ -1,3 +1,9 @@
+# For github
+# cd /home/m.sheinman/Development/HGTproject
+# git add ./src/*.*
+# git commit --all -m "changed mummer 4 to 3"
+# git push origin master
+
 setwd("/home/m.sheinman/Development/HGTnew/")
 files <- list.files(path="/home/m.sheinman/Development/HGTnew/data/processed/EscherichiaColi/",pattern=paste("*.fasta$"), full.names = TRUE)
 foreach (file = files) %do%
@@ -30,7 +36,7 @@ foreach (i = 1:length(files1)) %dopar%
   foreach (j = 1:length(files2)) %do%
   {
     sample_j <- strsplit(files2[j],"/")[[1]];sample_j <- sample_j[length(sample_j)];sample_j <- str_replace(sample_j,".fasta","")
-    Command <- paste0("/home/m.sheinman/Development/Software/mummer-4.0.0rc1/bin/mummer -maxmatch -b -l 300 -qthreads 1 -threads 1 -F ",
+    Command <- paste0("/home/m.sheinman/Development/Software/MUMmer3.23/mummer -maxmatch -n -b -l 100 -F ",
                       files1[i]," ",files2[j]," > /home/m.sheinman/Development/HGTnew/data/processed/mummer/EscherichiaColi_KlebsiellaPneumoniae/",sample_i,"_",sample_j,".mumm")
     system(Command)
   }
