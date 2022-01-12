@@ -5,15 +5,15 @@ DATA_DIR_FAST: /cbio/donnees/fmassip/HGT/ProjectMisha/HGTnew/data
 DATA_DIR: /mnt/data3/fmassip/HGT/ProjectMisha/HGTnew/data
 CODE_DIR: /mnt/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/
 
-#SPECIES2: "Pseudomonas"
+SPECIES2: "Pseudomonas"
 #SPECIES2: "EscherichiaColi"
-SPECIES1: "Staphylococcus"
-#SPECIES1: "Salmonella"
+#SPECIES1: "Staphylococcus"
+#SPECIES2: "Salmonella"
 #SPECIES1: "Streptococcus"
-#SPECIES1: "Mycobacterium"
+SPECIES1: "Mycobacterium"
 
-SPECIES2: ["Pseudomonas","EscherichiaColi",
-"Salmonella","Streptococcus","Mycobacterium","KlebsiellaPneumoniae"]
+#SPECIES2: ["Pseudomonas","EscherichiaColi",
+#"Salmonella","Streptococcus","Mycobacterium","KlebsiellaPneumoniae"]
 
 #All Species:
 #SPECIES2: ["Pseudomonas","EscherichiaColi", "Staphylococcus",
