@@ -30,13 +30,27 @@ snakemake -s ~/HGTnew/HGTproject/src/1.download.smk \
 	   --jobs 1 \
 	   --rerun-incomplete 
 
-snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk -n --unlock
-
-snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk \
-           --use-conda \
-	   --cluster-config config_sge.yml \
-	   --cluster "sbatch -N 1 -c 1 -J Mum  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
-	   --jobs 30 \
-	   --rerun-incomplete \
-	   --latency-wait 30
-#	   --resources cp_cores=10 \
+for i in `cat Species_list`
+do	
+	for j in `cat Species_list`
+	do
+		if [ $i != $j ]
+		then
+			my_list=$(echo $i $j | xargs -n1 | sort | xargs)
+			cat config_min.yml >config.yml
+			echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>config.yml
+			echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>test
+			snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk -n --unlock
+				
+		snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk \
+		           --use-conda \
+			   --cluster-config config_sge.yml \
+			   --cluster "sbatch -N 1 -c 1 -J Mum  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
+			   --jobs 30 \
+			   --rerun-incomplete \
+			   --latency-wait 30
+#			   --resources cp_cores=10 \
+			
+		fi
+	done
+done
