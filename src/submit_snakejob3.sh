@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH -J ControlJob
-#SBATCH -t 1-1:00:00
+#SBATCH -t 4-00:00:00
 #SBATCH -N 1
 #SBATCH --output /mnt/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/logs/%x-%j.out
 #SBATCH --error /mnt/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/logs/%x-%j.err
@@ -36,8 +36,7 @@ snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk \
            --use-conda \
 	   --cluster-config config_sge.yml \
 	   --cluster "sbatch -N 1 -c 1 -J Mum  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
-	   --jobs 70 \
+	   --jobs 30 \
 	   --rerun-incomplete \
+	   --latency-wait 30
 #	   --resources cp_cores=10 \
-#	   --latency-wait 30
-
