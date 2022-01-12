@@ -17,6 +17,7 @@ if (length(args) < 1 | args[1] == '--help'){
 species1=args[1]
 species2=args[2]
 
+
 Prefactor <- data.frame()
 files1 <- Sys.glob(file.path("~/HGTnew","data","processed",species1,paste0("*",species1,"_*.fasta")))
 files2 <- Sys.glob(file.path("~/HGTnew","data","processed",species2,paste0("*",species2,"_*.fasta")))
@@ -25,7 +26,8 @@ files2 <- Sys.glob(file.path("~/HGTnew","data","processed",species2,paste0("*",s
 species1_dir=paste("~/HGTnew/data/processed/",species1,sep="")
 species2_dir=paste("~/HGTnew/data/processed/",species2,sep="")
 
-
+system(paste0("mkdir -p ~/HGTnew/plots/",species1,"_",species2))
+ 
 # files <- list.files(path=paste0("~/HGTnew/data/processed/",species1,"/"),
 #                     pattern=paste("*.fasta$"), full.names = TRUE)
 # foreach (file = files) %do%
@@ -38,7 +40,7 @@ toRm=c()
 for (i in 1:length(files2)) {
   print(i)
   size=file.info(files2[i])$size
-  if (size<2){
+  if (size<101){
     toRm=c(toRm,i)
   }
 }
@@ -46,11 +48,10 @@ if (length(toRm)>0){
   files2=files2[-toRm]
 }
 toRm=c()
-for (i in 1:length(files1)) 
-{
+for (i in 1:length(files1)) {
   print(i)
   size=file.info(files1[i])$size
-  if (size<2){
+  if (size<101){
     toRm=c(toRm,i)
   }
 }
@@ -61,6 +62,9 @@ toRm=c()
 
 if (file.exists(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,".RData"))==F){
 
+  
+  cc=0
+  cc2=0
 for (i in 1:length(files1)) {
   
   Li <- read.table(paste0(files1[i],".L"))$V1
@@ -80,13 +84,15 @@ for (i in 1:length(files1)) {
       L <- read.table(filename)
       L <- L[!is.na(as.numeric(L$V2)),]; L$V2 <- as.numeric(L$V2);  L$V1 <- as.numeric(L$V1); 
       
-      if (nrow(L)>5 & max(L$V2)>300)
+      cc2=cc2+1
+      if (nrow(L)>5 & max(L$V2)>100)
       {
+        cc=cc+1
         Lj <- read.table(paste0(files2[j],".L"))$V1
         p <- weighted.hist(x=log(L$V2),w=L$V1,breaks=10,plot=FALSE)
         r <- exp(p$mids)
         m <- p$counts/diff(exp(p$breaks))/Li/Lj
-        A <- 300*sum(L$V1[L$V2>=300]*L$V2[L$V2>=300])/Li/Lj
+        A <- 100*sum(L$V1[L$V2>=100]*L$V2[L$V2>=100])/Li/Lj
         pdf(paste0("~/HGTnew/plots/",species1,"_",species2,"/",sample_i,"_",sample_j,".pdf"))
         # plot(r,log10(m));
         plot(log10(r),log10(m),col="black",pch=3);
@@ -158,9 +164,12 @@ pdf(paste0("~/HGTnew/plots/",species1,"_",species2,"/SameDiffCountries.pdf"))
 p <- ggboxplot(Prefactor, x = "Same", y = "A",
                color = "Same", palette = "jco")+
   geom_jitter(cex=0.5,aes(col=Same))
-p + stat_compare_means(method = "wilcox.test")
+p  
+# + stat_compare_means(method = "wilcox.test")
   dev.off()
 
+  print("here")
+  
   Prefactor$species1=as.character(Prefactor$species1)
   Prefactor$species2=as.character(Prefactor$species2)
   
@@ -176,7 +185,9 @@ for (i in 1:nrow(Prefactor))
   }
 }
 
-DiffCountriesRatios <- sample(DiffCountriesRatios,10000,replace=FALSE)
+print("there")
+ DiffCountriesRatios <- sample(DiffCountriesRatios,10000,replace=FALSE)
+print("right here")
 
 Ratios <- data.frame(ratios=abs(c(SameCountriesRatios,DiffCountriesRatios)),Same=c(rep("same",length(SameCountriesRatios)),rep("diff",length(DiffCountriesRatios))))
 
@@ -185,7 +196,8 @@ pdf(paste0("~/HGTnew/plots/",species1,"_",species2,"/Ratios.pdf"))
 p <- ggviolin(Ratios, x = "Same", y = "ratios",
               draw_quantiles = 0.5,
                color = "Same", palette = "jco")+geom_jitter(cex=0.5,aes(col=Same))
-p + stat_compare_means(method = "wilcox.test")
+p 
+# + stat_compare_means(method = "wilcox.test")
 dev.off()
 
 
