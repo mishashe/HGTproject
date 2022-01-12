@@ -56,7 +56,7 @@ for (country in countries)
     fileSize=file.info(paste0(species_dir,"/",species,"_",country,".fasta"))$size
     if (fileSize >3*10^8){
 	country_highmem=c(country_highmem,country)
-    }else if (fileSize >1){
+    }else if (fileSize >100){
 	country_lowmem=c(country_lowmem,country)
     }
 }
