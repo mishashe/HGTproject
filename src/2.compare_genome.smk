@@ -71,7 +71,7 @@ rule mummer:
 		config["CONDA_FILE"]
 	shell:
 		"""mkdir -p ~/HGTnew/data/mummer/{wildcards.SPECIES1}_{wildcards.SPECIES2}
-		mummer -maxmatch -F -b -n -l 300 {input.fasta1} {input.fasta2} \
+		mummer -maxmatch -F -b -n -l 100 {input.fasta1} {input.fasta2} \
 		>{output.mum}
 
 		sed '/^>/ d' {output.mum} |\
@@ -91,7 +91,7 @@ rule mummerHighMem:
 		config["CONDA_FILE"]
 	shell:
 		"""mkdir -p ~/HGTnew/data/mummerHighMem/{wildcards.SPECIES1}_{wildcards.SPECIES2}
-		mummer -maxmatch -F -b -n -l 300 {input.fasta1} {input.fasta2} \
+		mummer -maxmatch -F -b -n -l 100 {input.fasta1} {input.fasta2} \
 		>{output.mum}
 
 		sed '/^>/ d' {output.mum} |\
