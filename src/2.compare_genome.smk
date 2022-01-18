@@ -97,30 +97,4 @@ rule mummerHighMem:
 		sed '/^>/ d' {output.mum} |\
 		sed 's/.* //' |sort -n |uniq -c  >{output.h}"""
 
-#		mummer -maxmatch -b -n -l 300 -F \
-#		{config[DATA_DIR]/processed/{wildcards.SPECIES1}/{wildcards.SPECIES1}_{wildcards.COUNTRY1}.fasta \
-#		{config[DATA_DIR]/processed/{wildcards.SPECIES2}/{wildcards.SPECIES2}_{wildcards.COUNTRY2}.fasta \
-#		>{output}"""
-
-#rule aggregate:
-#	input:
-#		expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"])
-#	output:
-#		expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/list_of_files",DATA_DIR=config["DATA_DIR"])
-#	shell:
-#		"""ls {config["DATA_DIR"]}/processed/mummer/{wildcards.SPECIES1}}_{wildcards.SPECIES2} >{output}"""
-	
-
-#		sed '/^>/ d' ~/HGTnew/data/mummer/$sp1\_$sp2/$sp1\_$i\_$sp2\_$j.mum |\
-#		sed 's/.* //' |sort -n \
-#		>~/HGTnew/data/mummer/$sp1\_$sp2/$sp1\_$i\_$sp2\_$j.mum.h
-#		echo $sp1 $i $p2 $j >>$out"""
-
-
-
-#		"""{config[CODE_DIR]}/mummer.sh {wildcards.SPECIES1} {wildcards.SPECIES2}\
-#		{input.countriesSp1} {input.countriesSp2} {output.listmum}""" 
-
-
-
 
