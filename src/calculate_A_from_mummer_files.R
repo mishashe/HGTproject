@@ -89,14 +89,18 @@ for (i in 1:length(files1)) {
       {
         cc=cc+1
         Lj <- read.table(paste0(files2[j],".L"))$V1
-        p <- weighted.hist(x=log(L$V2),w=L$V1,breaks=10,plot=FALSE)
+        p <- weighted.hist(x=log(L$V2),w=L$V1,breaks=20,plot=FALSE)
         r <- exp(p$mids)
         m <- p$counts/diff(exp(p$breaks))/Li/Lj
         A <- 100*sum(L$V1[L$V2>=100]*L$V2[L$V2>=100])/Li/Lj
+#       B <- 300*sum(L$V1[L$V2>=300]*L$V2[L$V2>=300])/Li/Lj
+
         pdf(paste0("~/HGTnew/plots/",species1,"_",species2,"/",sample_i,"_",sample_j,".pdf"))
         # plot(r,log10(m));
         plot(log10(r),log10(m),col="black",pch=3);
         lines(log10(r),log10(A/r^3))
+#        lines(log10(r),log10(B/r^3),col=2,lty=2)
+#	abline(v=log10(300),lty=3)
         title(paste0(sample_j," ",A))
         dev.off()
         Prefactor <- rbind(Prefactor,data.frame(species1=country_i,
@@ -164,8 +168,7 @@ pdf(paste0("~/HGTnew/plots/",species1,"_",species2,"/SameDiffCountries.pdf"))
 p <- ggboxplot(Prefactor, x = "Same", y = "A",
                color = "Same", palette = "jco")+
   geom_jitter(cex=0.5,aes(col=Same))
-p  
-# + stat_compare_means(method = "wilcox.test")
+p  + stat_compare_means(method = "wilcox.test")
   dev.off()
 
   print("here")
@@ -186,7 +189,12 @@ for (i in 1:nrow(Prefactor))
 }
 
 print("there")
+if (length(DiffCountriesRatios) >10000){
+print("supp")
+print(dim(DiffCountriesRatios))
+print(length(DiffCountriesRatios))
  DiffCountriesRatios <- sample(DiffCountriesRatios,10000,replace=FALSE)
+}
 print("right here")
 
 Ratios <- data.frame(ratios=abs(c(SameCountriesRatios,DiffCountriesRatios)),Same=c(rep("same",length(SameCountriesRatios)),rep("diff",length(DiffCountriesRatios))))
@@ -196,8 +204,7 @@ pdf(paste0("~/HGTnew/plots/",species1,"_",species2,"/Ratios.pdf"))
 p <- ggviolin(Ratios, x = "Same", y = "ratios",
               draw_quantiles = 0.5,
                color = "Same", palette = "jco")+geom_jitter(cex=0.5,aes(col=Same))
-p 
-# + stat_compare_means(method = "wilcox.test")
+p + stat_compare_means(method = "wilcox.test")
 dev.off()
 
 
