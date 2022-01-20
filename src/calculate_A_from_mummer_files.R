@@ -163,7 +163,10 @@ save.image(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,".RDa
 } else{
   load(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,".RData"))
 }
+  print("first")
+  print(dim(Prefactor))
 
+ if (dim(Prefactor)[1]>2){
 pdf(paste0("~/HGTnew/plots/",species1,"_",species2,"/SameDiffCountries.pdf"))
 p <- ggboxplot(Prefactor, x = "Same", y = "A",
                color = "Same", palette = "jco")+
@@ -206,6 +209,6 @@ p <- ggviolin(Ratios, x = "Same", y = "ratios",
                color = "Same", palette = "jco")+geom_jitter(cex=0.5,aes(col=Same))
 p + stat_compare_means(method = "wilcox.test")
 dev.off()
-
+}
 
 
