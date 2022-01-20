@@ -48,7 +48,7 @@ do
 			   --cluster "sbatch -N 1 -c 1 -J Mum  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
 			   --jobs 30 \
 			   --rerun-incomplete \
-			   --latency-wait 10
+			   --latency-wait 30
 #			   --resources cp_cores=10 \
 			
 		snakemake -s ~/HGTnew/HGTproject/src/3.calculateA.smk -n --unlock
@@ -58,7 +58,7 @@ do
 			   --cluster "sbatch -N 1 -c 1 -J CalcA  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
 			   --jobs 1 \
 			   --rerun-incomplete \
-			   --latency-wait 10
+			   --latency-wait 30
 
 		fi
 	done
