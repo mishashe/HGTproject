@@ -40,9 +40,11 @@ for (country in countries)
   ACCN <- ACCN[ACCN!=""]
   i <- 1
   write(data.frame(), paste0(species_dir,"/",species,"_",country,".fasta"),append=FALSE)
-  while (i<=length(ACCN))
+  ADD=5
+  if (length(ACCN)>70){ADD=1}
+   while (i<=length(ACCN))
   {
-    term <- paste(ACCN[i:min(i+4,length(ACCN))],collapse="[ACCN] OR ")
+    term <- paste(ACCN[i:min(i+ADD,length(ACCN))],collapse="[ACCN] OR ")
     IDs <- rentrez::entrez_search(db   = "biosample",term = term,retmax=101, use_history=FALSE)$ids
     linked_seq_ids <- rentrez::entrez_link(dbfrom="biosample", id=IDs, db="nuccore",retmax=40000,term="(100000[SLEN] : 1000000000000000[SLEN])", use_history=FALSE)
     
@@ -51,7 +53,8 @@ for (country in countries)
       write(seq, paste0(species_dir,"/",species,"_",country,".fasta"),append=TRUE)
       print(paste0(i," from ",length(ACCN)))
     }
-    i <- i+5
+    i <- i+ADD
+    if (ADD==1){Sys.sleep(0.1)}
     }
     fileSize=file.info(paste0(species_dir,"/",species,"_",country,".fasta"))$size
     if (fileSize >3*10^8){
