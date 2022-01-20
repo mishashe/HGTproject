@@ -4,7 +4,7 @@
 # date: 12/14/2021
 #
 
-configfile:"config_t.yml"
+configfile:"config.yml"
 
 rule all:
 	input:

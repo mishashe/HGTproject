@@ -15,5 +15,6 @@ CODE_DIR: /mnt/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/
 #PVAL2: ["1e-05"]
 
 SPECIES: ["Pseudomonas","EscherichiaColi", "Staphylococcus",
-"Salmonella","Streptococcus","Mycobacterium","KlebsiellaPneumoniae"]
-
+"Salmonella","Streptococcus","Mycobacterium","KlebsiellaPneumoniae",
+"Vibrio"]
+#"Streptomyces","Vibrio"]
