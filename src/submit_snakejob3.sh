@@ -34,13 +34,15 @@ for i in `cat Species_list`
 do	
 	for j in `cat Species_list`
 	do
-		my_list=$(echo $i $j | xargs -n1 | sort | xargs)
-		cat config_min.yml >config.yml
-		echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>config.yml
-		echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>test
-		snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk -n --unlock
+		if [ $i != $j ]
+			then
+			my_list=$(echo $i $j | xargs -n1 | sort | xargs)
+			cat config_min.yml >config.yml
+			echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>config.yml
+			echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>test
+			snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk -n --unlock
 				
-		snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk \
+			snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk \
 		           --use-conda \
 			   --cluster-config config_sge.yml \
 			   --cluster "sbatch -N 1 -c 1 -J Mum  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
@@ -49,14 +51,14 @@ do
 			   --latency-wait 30
 #			   --resources cp_cores=10 \
 			
-		snakemake -s ~/HGTnew/HGTproject/src/3.calculateA.smk -n --unlock
-		snakemake -s ~/HGTnew/HGTproject/src/3.calculateA.smk \
+			snakemake -s ~/HGTnew/HGTproject/src/3.calculateA.smk -n --unlock
+			snakemake -s ~/HGTnew/HGTproject/src/3.calculateA.smk \
 		           --use-conda \
 			   --cluster-config config_sge.yml \
 			   --cluster "sbatch -N 1 -c 1 -J CalcA  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
 			   --jobs 1 \
 			   --rerun-incomplete \
 			   --latency-wait 30
-
+		fi
 	done
 done
