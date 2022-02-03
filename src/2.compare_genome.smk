@@ -15,7 +15,7 @@ def get_file_sp(s,mem):
 		with open(myfile) as f:
 			for i in f.readlines():
 				count_list.append(i.rstrip())
-	elif mem == "h" or mem == "b" :
+	if mem == "h" or mem == "b" :
 		myfileHM = config["DATA_DIR"]+"/processed/"+s+"-country_file_high_mem.txt"
 		with open(myfileHM) as fHM:
 			for i in fHM.readlines():
