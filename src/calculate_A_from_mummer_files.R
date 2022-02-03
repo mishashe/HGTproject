@@ -171,7 +171,8 @@ pdf(paste0("~/HGTnew/plots/",species1,"_",species2,"/SameDiffCountries.pdf"))
 p <- ggboxplot(Prefactor, x = "Same", y = "A",
                color = "Same", palette = "jco")+
   geom_jitter(cex=0.5,aes(col=Same))
-p  + stat_compare_means(method = "wilcox.test")
+p= p  + stat_compare_means(method = "wilcox.test")
+print(p)
   dev.off()
 
   print("here")
@@ -207,7 +208,8 @@ pdf(paste0("~/HGTnew/plots/",species1,"_",species2,"/Ratios.pdf"))
 p <- ggviolin(Ratios, x = "Same", y = "ratios",
               draw_quantiles = 0.5,
                color = "Same", palette = "jco")+geom_jitter(cex=0.5,aes(col=Same))
-p + stat_compare_means(method = "wilcox.test")
+p = p + stat_compare_means(method = "wilcox.test")
+print(p)
 dev.off()
 }
 
