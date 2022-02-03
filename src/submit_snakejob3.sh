@@ -34,13 +34,11 @@ for i in `cat Species_list`
 do	
 	for j in `cat Species_list`
 	do
-		if [ $i != $j ]
-		then
-			my_list=$(echo $i $j | xargs -n1 | sort | xargs)
-			cat config_min.yml >config.yml
-			echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>config.yml
-			echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>test
-			snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk -n --unlock
+		my_list=$(echo $i $j | xargs -n1 | sort | xargs)
+		cat config_min.yml >config.yml
+		echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>config.yml
+		echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>test
+		snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk -n --unlock
 				
 		snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk \
 		           --use-conda \
@@ -60,6 +58,5 @@ do
 			   --rerun-incomplete \
 			   --latency-wait 30
 
-		fi
 	done
 done
