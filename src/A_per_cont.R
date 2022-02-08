@@ -70,6 +70,7 @@ tempMum="~/HGTnew/data/tmp/TempMum"
 tempHist="~/HGTnew/data/tmp/TempHist"
 
 AllContinents=unique(country_per_cont$Continent)
+AllContinents=AllContinents[c(6,1,2,3,4,5,7)]
 
 if (file.exists(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,"_perCont.RData"))==F){
   
@@ -127,7 +128,7 @@ if (file.exists(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,
       L$V2 <- as.numeric(L$V2)
       L$V1 <- as.numeric(L$V1) 
       if (nrow(L)>5 & max(L$V2)>100){
-        p <- weighted.hist(x=log(L$V2),w=L$V1,breaks=20,plot=FALSE)
+        p <- weighted.hist(x=log(L$V2),w=L$V1,breaks=10,plot=FALSE)
         r <- exp(p$mids)
         m <- p$counts/diff(exp(p$breaks))/LiTot/LjTot
         A <- 100*sum(L$V1[L$V2>=100]*L$V2[L$V2>=100])/LiTot/LjTot
@@ -199,7 +200,7 @@ if (file.exists(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,
 
 }else{
   load(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,"_perCont.RData"))
-}
+  }
 
 
 print("first")
@@ -250,14 +251,37 @@ if (dim(Prefactor)[1]>2){
    p = p + stat_compare_means(method = "wilcox.test")
    print(p)
    dev.off()
+   
+   # Test Stat
+   Prefactor2=Prefactor
+   for (i in AllContinents){
+   Prefactor2[i]=0
+   Prefactor2[which(Prefactor2$species1 == i | Prefactor2$species2 == i ),i]=1
+   }
+   
+   
+   lm1=lm(data = Prefactor2,log(-A)~NorthAmerica + Africa + Asia + Australia + Europa + Antartica + Same)
+   summary(lm1)
+   write.table(file =  paste0("~/HGTnew/plots/perContinent/",species1,"_",species2,"/test_stat.txt"),
+                x=summary(lm1)$coefficients,quote=F,sep='\t')
+   # 
+   # p=ggplot(Prefactor2,aes(x=species1,fill=species1,y=log(-A)))+
+   #   geom_boxplot()
+   # print(p)
+   # p=ggplot(Prefactor2,aes(x=species2,fill=species2,y=log(-A)))+
+   #   geom_boxplot()
+   # print(p)
+  #  Prefactor2$res=aa  
+  #  lm2=lm(data = Prefactor2,res~Same)
+  # summary(lm2)   
  }
 
 
 # To exclude North America
 toRm=which(Prefactor$species1=="NorthAmerica" | Prefactor$species2=="NorthAmerica")
-if (length(toRm>0)){PrefactornoNA=Prefactor[-toRm,]}
-
-if (dim(PrefactornoNA)[1]>2){
+if (length(toRm>0)){
+  PrefactornoNA=Prefactor[-toRm,]
+  if (dim(PrefactornoNA)[1]>2){
   pdf(paste0("~/HGTnew/plots/perContinent/",species1,"_",species2,"/SameDiffCountriesnoNA.pdf"))
   p <- ggboxplot(PrefactornoNA, x = "Same", y = "A",
                  color = "Same", palette = "jco")+
@@ -303,6 +327,8 @@ if (dim(PrefactornoNA)[1]>2){
   print(p)
   dev.off()
 }
+}
+
 
 
 
