@@ -22,7 +22,7 @@ rule CalulateA:
 	conda:
 		config["CONDA_FILE"]
 	shell:
-		"""Rscript {config[CODE_DIR]}/calculate_A_from_mummer_files.R {wildcards.SPECIES1} {wildcards.SPECIES2}"""
+		"""Rscript {config[CODE_DIR]}/calculate_A_from_mummer_files.R {wildcards.SPECIES1} {wildcards.SPECIES2} 0"""
 
 rule CalulateAPerCont:
 	input:
