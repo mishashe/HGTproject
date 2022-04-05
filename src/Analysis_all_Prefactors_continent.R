@@ -6,6 +6,8 @@ library(seqinr)
 library(plotrix)
 library(ComplexHeatmap)
 library(ggpubr)
+library(ggplot2)
+library(ggsignif)
 
 
 country_per_cont=read.table("~/HGTnew/data/processed/All_countries_file.txt",head=T)
@@ -46,11 +48,115 @@ dim(AllPrefactors)
 colnames(AllPrefactors)
 AllPrefactors=AllPrefactors[,-c(1,2)]
 
-lm1=lm(data = AllPrefactors,log(-A)~NorthAmerica + Africa + Asia + Australia + Europa + Antartica + Same)
-summary(lm1)
-
-lm1=lm(data = AllPrefactors,log(-A)~.)
+lm1=lm(data = AllPrefactors,A~.)
 summary(lm1)
 
 write.table(summary(lm1)$coefficients,file = "~/HGTnew/data/processed/results/test_all_Prefactors.txt",
             sep="\t",quote = F)
+
+save.image("~/HGTnew/data/processed/results/AllPrefactors_perCont.Rda")
+
+colnames(AllPrefactors)
+p=ggplot(AllPrefactors,aes(x=Same,y=A,fill=Same))+
+geom_boxplot()
+p
+
+
+##################
+## Per Country
+##############
+
+country_per_cont=read.table("~/HGTnew/data/processed/All_countries_file.txt",head=T)
+country_per_cont=country_per_cont[order(country_per_cont$Continent),]
+
+AllCountries=unique(country_per_cont$Country)
+
+Species_list=read.table("~/HGTnew/HGTproject/src/Species_list",stringsAsFactors = F)$V1
+
+AllPrefactors=c()
+for (species1 in Species_list){
+  for (species2 in Species_list){
+    if (species1 != species2  &&    all(sort(c(species1,species2)) == c(species1,species2)) ){
+      load(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,".RData"))
+      
+      if (dim(Prefactor)[1]>5){
+        Prefactor2=Prefactor
+        for (i in AllCountries){
+          Prefactor2[i]=0
+          Prefactor2[which(Prefactor2$species1 == i | Prefactor2$species2 == i ),i]=1
+        }
+        for (i in Species_list){
+          Prefactor2[i]=0
+        }
+        Prefactor2[species1]=1
+        Prefactor2[species2]=1
+        for (i in AllContinents){
+          Prefactor2[i]=0
+        }
+        
+        for( ind in 1:dim(Prefactor2)[1]){
+          country_sp1=as.character(Prefactor2$species1[ind])
+          country_sp2=as.character(Prefactor2$species2[ind])
+          tt=which( as.character(country_per_cont$Country) == country_sp1)
+          contSp1=country_per_cont$Continent[tt]
+          Prefactor2[ind,contSp1]=1
+          tt2=which( as.character(country_per_cont$Country) == country_sp2)
+          contSp2=country_per_cont$Continent[tt2]
+          Prefactor2[ind,contSp2]=1
+        }
+
+        AllPrefactors=rbind(AllPrefactors,Prefactor2)
+        
+      }else{
+        print("Nothing")}
+    }
+  }
+}    
+
+dim(AllPrefactors)
+AllPrefactorsSaved=AllPrefactors
+
+colnames(AllPrefactorsSaved)
+AllPrefactors=AllPrefactorsSaved[,c(3,4,c(114:127))]
+
+lm2=lm(data = AllPrefactors,A~.)
+summary(lm2)
+
+lm2=lm(data = AllPrefactors,A~Same)
+summary(lm2)
+
+lm2=lm(data = AllPrefactors,A~Same+EscherichiaColi+Salmonella+KlebsiellaPneumoniae+
+                              Vibrio+Staphylococcus+Streptococcus+Pseudomonas+Mycobacterium)
+summary(lm2)
+
+colnames(AllPrefactors)
+write.table(summary(lm1)$coefficients,file = "~/HGTnew/data/processed/results/test_all_Prefactors_per_Countries.txt",
+            sep="\t",quote = F)
+
+p=ggplot(AllPrefactors,aes(x=Same,y=A,fill=Same))+
+  geom_boxplot()
+p
+
+colnames(AllPrefactors)
+AllPrefactors2=AllPrefactors[,-c(2)]
+lm1=lm(data = AllPrefactors2,A~.)
+AllPrefactors$Acorrected = summary(lm1)$residuals
+
+p=ggplot(AllPrefactors,aes(x=Same,y=Acorrected,fill=Same))+
+  geom_boxplot()+geom_signif()
+p
+
+country_per_cont$Continent=as.character(country_per_cont$Continent)
+AllPrefactors$Continent=NA
+for (jj in 1:dim(AllPrefactors)[1]){
+  tt=which( as.character(country_per_cont$Country) == as.character(AllPrefactors$species1[jj] ))
+  AllPrefactors$Continent[jj]=country_per_cont$Continent[tt]
+}
+AllPrefactors$Continent
+p=ggplot(AllPrefactors,aes(x=species1,y=A,fill=Continent))+
+  geom_boxplot()+geom_signif()+theme(legend.position = "None")
+p
+  
+AllPrefactors3=AllPrefactors[which(AllPrefactors$species1=="EscherichiaColi" 
+                                   && AllPrefactors$species2 =="KlebsiellaPneumoniae"),]
+        save.image("~/HGTnew/data/processed/results/AllPrefactors_perCountries.Rda")
