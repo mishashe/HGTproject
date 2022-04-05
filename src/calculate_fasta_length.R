@@ -22,8 +22,17 @@ for (i in 1:length(files1)) {
     print(size)
    if (size>10){
     fi <- read.fasta(file = files1[i])
-    Li <- sum(getLength(fi))
-    write(Li, paste0(files1[i],".L"),append=FALSE)
+    Li=getLength(fi)
+    Ni=getName(fi)
+    dat=data.frame("ID"=Ni,"Length"=Li)
+    write.table(dat, paste0(files1[i],".all.L"),quote=F,row.names=F,sep="\t",append=F)
+    LToti <- sum(Li)
+    write(LToti, paste0(files1[i],".L"),append=FALSE)
    }
   }
 }
+ #  if (size>10){
+
+ #  }
+ # }
+#}
