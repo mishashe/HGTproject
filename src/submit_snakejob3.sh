@@ -2,8 +2,8 @@
 #SBATCH -J ControlJob
 #SBATCH -t 4-00:00:00
 #SBATCH -N 1
-#SBATCH --output /mnt/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/logs/%x-%j.out
-#SBATCH --error /mnt/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/logs/%x-%j.err
+#SBATCH --output /cluster/CBIO/data1/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/logs/%x-%j.out
+#SBATCH --error /cluster/CBIO/data1/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/logs/%x-%j.err
 
 
 # activate conda 
@@ -30,9 +30,9 @@ snakemake -s ~/HGTnew/HGTproject/src/1.download.smk \
 	   --jobs 1 \
 	   --rerun-incomplete 
 
-for i in `cat Species_list`
+for i in `cat Species_listT`
 do	
-	for j in `cat Species_list`
+	for j in `cat Species_listT`
 	do
 		if [ $i != $j ]
 			then
@@ -40,13 +40,24 @@ do
 			cat config_min.yml >config.yml
 			echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>config.yml
 			echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>test
+
+			snakemake -s ~/HGTnew/HGTproject/src/1.9.nucmer.smk -n --unlock
+			snakemake -s ~/HGTnew/HGTproject/src/1.9.nucmer.smk \
+		           --use-conda \
+			   --cluster-config config_sge.yml \
+			   --cluster "sbatch -N 1 -c 1 -J Nucmer  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
+			   --jobs 20 \
+			   --rerun-incomplete \
+			   --latency-wait 30
+
+
 			snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk -n --unlock
 				
 			snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk \
 		           --use-conda \
 			   --cluster-config config_sge.yml \
 			   --cluster "sbatch -N 1 -c 1 -J Mum  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
-			   --jobs 30 \
+			   --jobs 20 \
 			   --rerun-incomplete \
 			   --latency-wait 30
 #			   --resources cp_cores=10 \
@@ -62,3 +73,4 @@ do
 		fi
 	done
 done
+
