@@ -260,7 +260,7 @@ if (dim(Prefactor)[1]>2){
    }
    
    
-   lm1=lm(data = Prefactor2,log(-A)~NorthAmerica + Africa + Asia + Australia + Europa + Antartica + Same)
+   lm1=lm(data = Prefactor2,A~NorthAmerica + Africa + Asia + Australia + Europa + Antartica + Same)
    summary(lm1)
    write.table(file =  paste0("~/HGTnew/plots/perContinent/",species1,"_",species2,"/test_stat.txt"),
                 x=summary(lm1)$coefficients,quote=F,sep='\t')
