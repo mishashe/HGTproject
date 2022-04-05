@@ -243,4 +243,4 @@ dependencies:
   - pip:
     - pip==21.3.1
     - wheel==0.37.0
-prefix: /cbio/donnees/fmassip/anaconda3/envs/HGT
+prefix: /cluster/CBIO/home/fmassip/anaconda3/envs/HGT

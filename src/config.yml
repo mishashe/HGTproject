@@ -1,12 +1,11 @@
-#CONDA_FILE: ./envs/peer.yml ## Broken env
 CONDA_FILE: ./envs/HGT.yml
 CONDA_FILE2: ./envs/mypy27.yml
 DATA_DIR_FAST: /cbio/donnees/fmassip/HGT/ProjectMisha/HGTnew/data
-DATA_DIR: /mnt/data3/fmassip/HGT/ProjectMisha/HGTnew/data
-CODE_DIR: /mnt/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/
+DATA_DIR: /cluster/CBIO/data1/data3/fmassip/HGT/ProjectMisha/HGTnew/data
+CODE_DIR: /cluster/CBIO/data1/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/
 #All Species:
 #SPECIES2: ["Pseudomonas","EscherichiaColi", "Staphylococcus",
 #"Salmonella","Streptococcus","Mycobacterium","KlebsiellaPneumoniae"]
 
-SPECIES1 : Mycobacterium
-SPECIES2 : Streptococcus
+SPECIES1 : EscherichiaColi
+SPECIES2 : KlebsiellaPneumoniae
