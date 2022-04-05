@@ -30,9 +30,9 @@ snakemake -s ~/HGTnew/HGTproject/src/1.download.smk \
 	   --jobs 1 \
 	   --rerun-incomplete 
 
-for i in `cat Species_listT`
+for i in `cat Species_list`
 do	
-	for j in `cat Species_listT`
+	for j in `cat Species_list`
 	do
 		if [ $i != $j ]
 			then
