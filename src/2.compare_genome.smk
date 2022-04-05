@@ -33,38 +33,20 @@ COUNTRIES_LM2=get_file_sp(config["SPECIES2"],"l")
 
 rule all:
 	input:
-#		expand("{DATA_DIR}/processed/mummer/{SPECIES1}_{COUNTRY1}_{SPECIES2}_{COUNTRY2}.mum",SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"],DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES,COUNTRY2=COUNTRIES),
-#		expand("{DATA_DIR}/processed/{SPECIES1}/{SPECIES1}_USA.fasta",SPECIES1=config["SPECIES1"],DATA_DIR=config["DATA_DIR"]),
-#		expand("{DATA_DIR}/processed/{SPECIES2}/{SPECIES2}_USA.fasta",SPECIES2=config["SPECIES2"],DATA_DIR=config["DATA_DIR"])
-#		expand("{DATA_DIR}/processed/{SPECIES}/{SPECIES}_{COUNTRY}.fasta",SPECIES=SPECIES,DATA_DIR=config["DATA_DIR"],COUNTRY=COUNTRIES),
 #		expand("{DATA_DIR}/processed/mummer/{SPECIES1}_{SPECIES2}/list_of_files",DATA_DIR=config["DATA_DIR"],SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
 		expand("{DATA_DIR}/processed/mummer/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.mum",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_LM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
 		expand("{DATA_DIR}/processed/mummer/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.h",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_LM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
 		expand("{DATA_DIR}/processed/mummerHighMem/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.mum",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_HM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
-		expand("{DATA_DIR}/processed/mummerHighMem/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.h",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_HM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"])
+		expand("{DATA_DIR}/processed/mummerHighMem/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.h",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_HM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
+		expand("{DATA_DIR}/processed/mummer/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.mum.h-filtered",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_LM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
+		expand("{DATA_DIR}/processed/mummerHighMem/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.mum.h-filtered",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_HM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"])
 
-
-
-#rule cp:
-#	input:
-#		fasta1=expand("{DATA_DIR}/processed/{{SPECIES1}}/{{SPECIES1}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR"]),
-#	output:
-#		temp(expand("{DATA_DIR}/processed/{{SPECIES1}}/{{SPECIES1}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR_FAST"]))
-#	resources:
-#		cp_cores=1
-#	shell:
-#		"""cp {input.fasta1} {output}
-#		sleep 5"""
-#
 
 rule mummer:
 	input:
 		fasta1=expand("{DATA_DIR}/processed/{{SPECIES1}}/{{SPECIES1}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR"]),
 		fasta2=expand("{DATA_DIR}/processed/{{SPECIES2}}/{{SPECIES2}}_{{COUNTRY2}}.fasta",DATA_DIR=config["DATA_DIR"])
-#		fasta1=get_file_sp1,
-#		fasta2=get_file_sp2
 	output:
-#		listF=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/list_of_files",DATA_DIR=config["DATA_DIR"]),
 		mum=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"]),
 		h=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.h",DATA_DIR=config["DATA_DIR"])
 	conda:
@@ -81,10 +63,7 @@ rule mummerHighMem:
 	input:
 		fasta1=expand("{DATA_DIR}/processed/{{SPECIES1}}/{{SPECIES1}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR"]),
 		fasta2=expand("{DATA_DIR}/processed/{{SPECIES2}}/{{SPECIES2}}_{{COUNTRY2}}.fasta",DATA_DIR=config["DATA_DIR"])
-#		fasta1=get_file_sp1,
-#		fasta2=get_file_sp2
 	output:
-#		listF=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/list_of_files",DATA_DIR=config["DATA_DIR"]),
 		mum=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"]),
 		h=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.h",DATA_DIR=config["DATA_DIR"])
 	conda:
@@ -96,5 +75,31 @@ rule mummerHighMem:
 
 		sed '/^>/ d' {output.mum} |\
 		sed 's/.* //' |sort -n |uniq -c  >{output.h}"""
+
+rule filterHighMem:
+	input:
+		mum=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"])
+
+	output:
+		hfilt=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum.h-filtered",DATA_DIR=config["DATA_DIR"])
+	conda:
+		config["CONDA_FILE"]
+	shell:
+		"""python3 {config[CODE_DIR]}filter_mummer_file.py --species1 {wildcards.SPECIES1}\
+		--species2 {wildcards.SPECIES2}\
+		-f {input.mum}"""
+
+rule filterlowMem:
+	input:
+		mum=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"])
+
+	output:
+		hfilt=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum.h-filtered",DATA_DIR=config["DATA_DIR"])
+	conda:
+		config["CONDA_FILE"]
+	shell:
+		"""python3 {config[CODE_DIR]}filter_mummer_file.py --species1 {wildcards.SPECIES1}\
+		--species2 {wildcards.SPECIES2}\
+		-f {input.mum}"""
 
 
