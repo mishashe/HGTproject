@@ -16,6 +16,7 @@ dependencies:
   - bzip2=1.0.8=h7f98852_4
   - ca-certificates=2021.10.8=ha878542_0
   - cairo=1.16.0=hcf35c78_1003
+  - capnproto=0.9.1=h780b84a_5
   - curl=7.68.0=hf8cf82a_0
   - fontconfig=2.13.1=hba837de_1005
   - freetype=2.10.4=h0708190_1
@@ -66,9 +67,10 @@ dependencies:
   - libzlib=1.2.11=h36c2ea0_1013
   - lz4-c=1.9.3=h9c3ff4c_1
   - make=4.3=hd18ef5c_1
+  - mash=2.2.2=h3d38be6_1
   - mummer=3.23=pl5262h1b792b2_12
   - ncurses=6.2=h58526e2_4
-  - openssl=1.1.1l=h7f98852_0
+  - openssl=1.1.1n=h166bdaf_0
   - pango=1.42.4=h7062337_4
   - pcre=8.45=h9c3ff4c_0
   - perl=5.26.2=h14c3975_0
