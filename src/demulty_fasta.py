@@ -50,7 +50,7 @@ f1.write("\n")
 f1.close()
 
 for myFile in listFile:
-	comm='mash sketch '+out_dir+"/"+myFile+".fasta
+	comm='mash sketch '+out_dir+"/"+myFile+".fasta"
 	os.system(comm)
 	
 
