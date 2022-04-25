@@ -4,10 +4,10 @@
 #SBATCH -N 1
 #SBATCH --output /cluster/CBIO/data1/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/logs/%x-%j.out
 #SBATCH --error /cluster/CBIO/data1/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/logs/%x-%j.err
-
+eval "$(conda shell.bash hook)"
 
 # activate conda 
-source activate snakemake
+conda activate snakemake
 
 # make things fail on errors
 set -o nounset
@@ -41,12 +41,12 @@ do
 			echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>config.yml
 			echo $my_list |sed -r 's/(.*) (.*)/SPECIES1 : \1\nSPECIES2 : \2/' >>test
 
-			snakemake -s ~/HGTnew/HGTproject/src/1.9.nucmer.smk -n --unlock
-			snakemake -s ~/HGTnew/HGTproject/src/1.9.nucmer.smk \
+			snakemake -s ~/HGTnew/HGTproject/src/1.8.mash.smk -n --unlock
+			snakemake -s ~/HGTnew/HGTproject/src/1.8.mash.smk \
 		           --use-conda \
 			   --cluster-config config_sge.yml \
-			   --cluster "sbatch -N 1 -c 1 -J Nucmer  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
-			   --jobs 20 \
+			   --cluster "sbatch -N 1 -c 1 -J Mash  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
+			   --jobs 10 \
 			   --rerun-incomplete \
 			   --latency-wait 30
 
@@ -57,9 +57,9 @@ do
 		           --use-conda \
 			   --cluster-config config_sge.yml \
 			   --cluster "sbatch -N 1 -c 1 -J Mum  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
-			   --jobs 20 \
+			   --jobs 40 \
 			   --rerun-incomplete \
-			   --latency-wait 30
+			   --latency-wait 60
 #			   --resources cp_cores=10 \
 			
 			snakemake -s ~/HGTnew/HGTproject/src/3.calculateA.smk -n --unlock

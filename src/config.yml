@@ -7,5 +7,5 @@ CODE_DIR: /cluster/CBIO/data1/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/s
 #SPECIES2: ["Pseudomonas","EscherichiaColi", "Staphylococcus",
 #"Salmonella","Streptococcus","Mycobacterium","KlebsiellaPneumoniae"]
 
-SPECIES1 : EscherichiaColi
-SPECIES2 : KlebsiellaPneumoniae
+SPECIES1 : KlebsiellaPneumoniae
+SPECIES2 : Vibrio
