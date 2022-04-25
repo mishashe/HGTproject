@@ -61,27 +61,24 @@ rule sketch:
 	input:
 		fasta1=expand("{DATA_DIR}/processed/{{SPECIES}}/{{SPECIES}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR"]),
 	output:
-		sketchdir=expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY1}}-sketch/",DATA_DIR=config["DATA_DIR"]),
+		sketchdir=directory(expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY1}}-sketch/",DATA_DIR=config["DATA_DIR"]))
 
 	conda:
 		config["CONDA_FILE"]
 	shell:
 		"""mkdir -p {output.sketchdir}
-		demulty_fasta -i {input.fasta1} -o {output.sketchdir}"""
+		python3 demulty_fasta.py -i {input.fasta1} -o {output.sketchdir}"""
 
 rule mash:
 	input:
-		sketch1=expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY1}}-sketch/",DATA_DIR=config["DATA_DIR"]),
-		fasta2=expand("{DATA_DIR}/processed/{{SPECIES}}/{{SPECIES}}_{{COUNTRY1}}.fasta",DATA_DIR=config["DATA_DIR"])
+		sketch1=directory(expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY1}}-sketch/",DATA_DIR=config["DATA_DIR"])),
+		sketch2=directory(expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY2}}-sketch/",DATA_DIR=config["DATA_DIR"]))
 	output:
 		dist1=expand("{DATA_DIR}/dist/{{SPECIES}}-{{COUNTRY1}}-{{COUNTRY2}}/dist-all.txt",DATA_DIR=config["DATA_DIR"])
 	conda:
 		config["CONDA_FILE"]
 	shell:
 		"""mkdir -p {config[DATA_DIR]}/dist/{wildcards.SPECIES}-{wildcards.COUNTRY1}-{wildcards.COUNTRY2}
-		for i in `ls {input.sketch1}/*msh`; \
-		do; \
-		mash dist $i {input.fasta2} >>{output.dist1} ;\
-		done"""
+		bash mash.sh {input.sketch1} {input.sketch2} {output.dist1} """
 
 	
