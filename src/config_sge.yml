@@ -1,0 +1,16 @@
+__default__:
+  mem: '16gb'
+  time: '4-00:00:00'
+
+mummerHighMem:
+  mem: '128000'
+  time: '04:00:00'
+
+mummer:
+  mem: '12300'
+  time: '04:00:00'
+
+calc_length:
+  mem: '128000'
+  time: '01:00:00'
+
