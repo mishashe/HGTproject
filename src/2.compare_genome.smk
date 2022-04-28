@@ -20,6 +20,12 @@ def get_file_sp(s,mem):
 		with open(myfileHM) as fHM:
 			for i in fHM.readlines():
 				count_list.append(i.rstrip())
+	if mem == "t" :
+		myfileHM = config["DATA_DIR"]+"/processed/"+s+"-country_file_test.txt"
+		with open(myfileHM) as fHM:
+			for i in fHM.readlines():
+				count_list.append(i.rstrip())
+
 	return count_list
 
 
@@ -38,8 +44,8 @@ rule all:
 		expand("{DATA_DIR}/processed/mummer/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.h",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_LM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
 		expand("{DATA_DIR}/processed/mummerHighMem/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.mum",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_HM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
 		expand("{DATA_DIR}/processed/mummerHighMem/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.h",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_HM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
-		expand("{DATA_DIR}/processed/mummer/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.mum.h-filtered",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_LM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
-		expand("{DATA_DIR}/processed/mummerHighMem/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.mum.h-filtered",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_HM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"])
+		expand("{DATA_DIR}/processed/mummer/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.mum.h-filtered-mash",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_LM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
+		expand("{DATA_DIR}/processed/mummerHighMem/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.mum.h-filtered-mash",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_HM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"])
 
 
 rule mummer:
@@ -81,12 +87,13 @@ rule filterHighMem:
 		mum=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"])
 
 	output:
-		hfilt=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum.h-filtered",DATA_DIR=config["DATA_DIR"])
+		hfilt=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum.h-filtered-mash",DATA_DIR=config["DATA_DIR"])
 	conda:
 		config["CONDA_FILE"]
 	shell:
-		"""python3 {config[CODE_DIR]}filter_mummer_file.py --species1 {wildcards.SPECIES1}\
-		--species2 {wildcards.SPECIES2}\
+		"""python3 {config[CODE_DIR]}filter_mummer_file_mash.py --species1 {wildcards.SPECIES1}\
+		--species2 {wildcards.SPECIES2} \
+		--country1 {wildcards.COUNTRY1} --country2 {wildcards.COUNTRY2} \
 		-f {input.mum}"""
 
 rule filterlowMem:
@@ -94,12 +101,13 @@ rule filterlowMem:
 		mum=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"])
 
 	output:
-		hfilt=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum.h-filtered",DATA_DIR=config["DATA_DIR"])
+		hfilt=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum.h-filtered-mash",DATA_DIR=config["DATA_DIR"])
 	conda:
 		config["CONDA_FILE"]
 	shell:
-		"""python3 {config[CODE_DIR]}filter_mummer_file.py --species1 {wildcards.SPECIES1}\
-		--species2 {wildcards.SPECIES2}\
+		"""python3 {config[CODE_DIR]}filter_mummer_file_mash.py --species1 {wildcards.SPECIES1} \
+		--species2 {wildcards.SPECIES2} \
+		--country1 {wildcards.COUNTRY1} --country2 {wildcards.COUNTRY2} \
 		-f {input.mum}"""
 
 
