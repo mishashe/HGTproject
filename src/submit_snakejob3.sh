@@ -2,8 +2,8 @@
 #SBATCH -J ControlJob
 #SBATCH -t 4-00:00:00
 #SBATCH -N 1
-#SBATCH --output /cluster/CBIO/data1/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/logs/%x-%j.out
-#SBATCH --error /cluster/CBIO/data1/data3/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/logs/%x-%j.err
+#SBATCH --output /cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/logs/%x-%j.out
+#SBATCH --error /cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/logs/%x-%j.err
 eval "$(conda shell.bash hook)"
 
 # activate conda 
@@ -14,8 +14,7 @@ set -o nounset
 set -o errexit
 set -x
 
-
-export LOGDIR=~/HGTnew/HGTproject/src/logs/${SLURM_JOB_NAME}-${SLURM_JOB_ID}
+export LOGDIR=/cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/logs/${SLURM_JOB_NAME}-${SLURM_JOB_ID}
 ### run your commands here!
 
 mkdir -p $LOGDIR
@@ -46,9 +45,9 @@ do
 		           --use-conda \
 			   --cluster-config config_sge.yml \
 			   --cluster "sbatch -N 1 -c 1 -J Mash  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
-			   --jobs 10 \
+			   --jobs 30 \
 			   --rerun-incomplete \
-			   --latency-wait 30
+			   --latency-wait 60 
 
 
 			snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk -n --unlock
