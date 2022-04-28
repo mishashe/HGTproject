@@ -27,7 +27,7 @@ species1_dir=paste("~/HGTnew/data/processed/",species1,sep="")
 species2_dir=paste("~/HGTnew/data/processed/",species2,sep="")
 
 if (filter == 1){
-  suffix =  "-filtered"
+  suffix =  "-filtered-mash"
 }else{
   suffix=''
 }
@@ -84,7 +84,7 @@ for (i in 1:length(files1)) {
     ###
   if (filter == 1) {
     filename <- Sys.glob(file.path("~/HGTnew/data/processed/mummer*",paste0(species1,"_",species2),
-                                   paste0(species1,'-',country_i,"_",species2,'-',country_j,".mum.h-filtered")))
+                                   paste0(species1,'-',country_i,"_",species2,'-',country_j,".mum.h-filtered-mash")))
   }else{
         filename <- Sys.glob(file.path("~/HGTnew/data/processed/mummer*",paste0(species1,"_",species2),
                                    paste0(species1,'-',country_i,"_",species2,'-',country_j,".h")))
