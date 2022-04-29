@@ -50,59 +50,59 @@ threshold = float(options.threshold)
 #myDir = "/cluster/CBIO/data1/data3/fmassip/HGT/ProjectMisha/HGTnew/data/processed/nucmer/"
 myDir = "/cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/data/dist/"
 
-
-#fileSp1 = os.listdir(myDir+species1)
-#fileSp2 = os.listdir(myDir+species2)
-
-## Stopped about here
-
-
 def AssembToRemove(species,country,threshold=threshold):
 
+	filterFile="/cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/data/processed/toFilterMash/"+species+"/"+species+"-"+country+"/toFilter.txt"
+
 	AssembToRemove=[]
-	fileRegex = re.compile(species+"-"+country)
-	testFileSp = lambda x: fileRegex.search(x)
+	if os.path.exists(filterFile):
+		op=open(filterFile,"r")
+		for line in op.readlines():
+			line=line.rstrip()
+			AssembToRemove.append(line)
+	else:
+		comm="mkdir -p /cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/data/processed/toFilterMash/"+species+"/"+species+"-"+country
+		os.system(comm)
+		fileRegex = re.compile(species+"-"+country)
+		testFileSp = lambda x: fileRegex.search(x)
+		myFiles = filter(testFileSp,
+		os.listdir(myDir+species))
 
-#	myFiles =  os.listdir(myDir+species)
-	myFiles = filter(testFileSp,
-	os.listdir(myDir+species))
 
+		for i in myFiles:
+			print(i)
+			myPath=myDir+species+"/"+i+"/dist-close.txt"
+			if os.path.exists(myPath):
+				op = open(myPath, 'r')
+				for line in op.readlines():
+					line = line.rstrip()
+					row = line.split('\t')
+					thisAssemb1 = row[0]
+					thisAssemb2 = row[1]
+					dist = float(row[2])
 
-	for i in myFiles:
-		print(i)
-		myPath=myDir+species+"/"+i+"/dist-close.txt"
-		if os.path.exists(myPath):
-			op = open(myPath, 'r')
-			for line in op.readlines():
-				line = line.rstrip()
-				row = line.split('\t')
-				thisAssemb1 = row[0]
-				thisAssemb2 = row[1]
-				dist = float(row[2])
+					if dist <= threshold : 
 
-				if dist <= threshold : 
-
-					thisAssemb1=re.sub(r".+\/(.*).fasta",r"\1",thisAssemb1)
-					thisAssemb2=re.sub(r".+\/(.*).fasta",r"\1",thisAssemb2)
-					AssembToRemove.append(thisAssemb1)
-					AssembToRemove.append(thisAssemb2)
+						thisAssemb1=re.sub(r".+\/(.*).fasta",r"\1",thisAssemb1)
+						thisAssemb2=re.sub(r".+\/(.*).fasta",r"\1",thisAssemb2)
+						AssembToRemove.append(thisAssemb1)
+						AssembToRemove.append(thisAssemb2)
+		
+		AssembToRemove=set(AssembToRemove)
+		op=open(filterFile,"w")
+		op.write("\n".join(i for i in AssembToRemove)+"\n")
+		op.close()
 
 	return(AssembToRemove)
 
-print(species1)
-print(species2)
-print(country1)
-print(country2)
 
 
 AssembToRemoveSP1=AssembToRemove(species1,country1,threshold=threshold)
 AssembToRemoveSP2=AssembToRemove(species2,country2,threshold=threshold)
 
 
-f2=open("/cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/test.txt","w")
-for i in AssembToRemoveSP1:
-	f2.write(str(i)+"\n")
-
+print(species1+" "+country1+"\t".join(i for i in AssembToRemoveSP1))
+print(species2+" "+country2+"\t".join(i for i in AssembToRemoveSP2))
 
 histo = dict()
 op = open(mumFile, 'r')
