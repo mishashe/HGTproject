@@ -45,7 +45,9 @@ rule all:
 		expand("{DATA_DIR}/processed/mummerHighMem/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.mum",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_HM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
 		expand("{DATA_DIR}/processed/mummerHighMem/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.h",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_HM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
 		expand("{DATA_DIR}/processed/mummer/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.mum.h-filtered-mash",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_LM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
-		expand("{DATA_DIR}/processed/mummerHighMem/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.mum.h-filtered-mash",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_HM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"])
+		expand("{DATA_DIR}/processed/mummerHighMem/{SPECIES1}_{SPECIES2}/{SPECIES1}-{COUNTRY1}_{SPECIES2}-{COUNTRY2}.mum.h-filtered-mash",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRIES_HM1,COUNTRY2=ALL_COUNT2,SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
+		expand("{DATA_DIR}/processed/toFilterMash/{SPECIES1}/{SPECIES1}-{COUNTRY1}/toFilter.txt",DATA_DIR=config["DATA_DIR"],COUNTRY1=ALL_COUNT1,SPECIES1=config["SPECIES1"]),
+		expand("{DATA_DIR}/processed/toFilterMash/{SPECIES2}/{SPECIES2}-{COUNTRY2}/toFilter.txt",DATA_DIR=config["DATA_DIR"],COUNTRY2=ALL_COUNT2,SPECIES2=config["SPECIES2"])
 
 
 rule mummer:
@@ -87,7 +89,10 @@ rule filterHighMem:
 		mum=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"])
 
 	output:
-		hfilt=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum.h-filtered-mash",DATA_DIR=config["DATA_DIR"])
+		hfilt=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum.h-filtered-mash",DATA_DIR=config["DATA_DIR"]),
+		filtFile1=expand("{DATA_DIR}/processed/toFilterMash/{{SPECIES1}}/{{SPECIES1}}-{{COUNTRY1}}/toFilter.txt",DATA_DIR=config["DATA_DIR"]),
+		filtFile2=expand("{DATA_DIR}/processed/toFilterMash/{{SPECIES2}}/{{SPECIES2}}-{{COUNTRY2}}/toFilter.txt",DATA_DIR=config["DATA_DIR"])
+
 	conda:
 		config["CONDA_FILE"]
 	shell:
@@ -101,7 +106,10 @@ rule filterlowMem:
 		mum=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"])
 
 	output:
-		hfilt=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum.h-filtered-mash",DATA_DIR=config["DATA_DIR"])
+		hfilt=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum.h-filtered-mash",DATA_DIR=config["DATA_DIR"]),
+		filtFile1=expand("{DATA_DIR}/processed/toFilterMash/{{SPECIES1}}/{{SPECIES1}}-{{COUNTRY1}}/toFilter.txt",DATA_DIR=config["DATA_DIR"]),
+		filtFile2=expand("{DATA_DIR}/processed/toFilterMash/{{SPECIES2}}/{{SPECIES2}}-{{COUNTRY2}}/toFilter.txt",DATA_DIR=config["DATA_DIR"])
+
 	conda:
 		config["CONDA_FILE"]
 	shell:
