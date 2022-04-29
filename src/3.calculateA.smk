@@ -9,7 +9,7 @@ configfile:"config.yml"
 rule all:
 	input:
 		expand("{DATA_DIR}/processed/results/{SPECIES1}_{SPECIES2}.RData",DATA_DIR=config["DATA_DIR"],SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
-		expand("{DATA_DIR}/processed/results/{SPECIES1}_{SPECIES2}-filtered.RData",DATA_DIR=config["DATA_DIR"],SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
+		expand("{DATA_DIR}/processed/results/{SPECIES1}_{SPECIES2}-filtered-mash.RData",DATA_DIR=config["DATA_DIR"],SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"]),
 		expand("{DATA_DIR}/processed/results/{SPECIES1}_{SPECIES2}_perCont.RData",DATA_DIR=config["DATA_DIR"],SPECIES1=config["SPECIES1"],SPECIES2=config["SPECIES2"])
 
 
@@ -41,7 +41,7 @@ rule CalulateAFiltered:
 		mumHM=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}",DATA_DIR=config["DATA_DIR"]),
 		mum=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}",DATA_DIR=config["DATA_DIR"])
 	output:
-		Rdata=expand("{DATA_DIR}/processed/results/{{SPECIES1}}_{{SPECIES2}}-filtered.RData",DATA_DIR=config["DATA_DIR"])
+		Rdata=expand("{DATA_DIR}/processed/results/{{SPECIES1}}_{{SPECIES2}}-filtered-mash.RData",DATA_DIR=config["DATA_DIR"])
 	conda:
 		config["CONDA_FILE"]
 	shell:

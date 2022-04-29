@@ -71,8 +71,17 @@ if (file.exists(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,
   cc=0
   cc2=0
 for (i in 1:length(files1)) {
-  
-  Li <- read.table(paste0(files1[i],".L"))$V1
+
+ if (filter == 1) {  
+   AllLs <- read.table(paste0(files1[i],".all.L"))$V1
+   filterFile=read.table(paste("/cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/data/processed/toFilterMash/",
+   species1,"/",species1,"-",country1,"/toFilter.txt"),sep='')
+   Li=sum(AllLs$Length[which(AllLs$ID %in% filterFile$V1)])
+ }else{
+   Li <- read.table(paste0(files1[i],".L"))$V1
+}
+
+
   sample_i <- strsplit(files1[i],"/")[[1]];sample_i <- sample_i[length(sample_i)];sample_i <- str_replace(sample_i,".fasta","")
   country_i <- strsplit(sample_i,"_")[[1]][2]
   print(sample_i)
@@ -100,7 +109,15 @@ for (i in 1:length(files1)) {
       if (nrow(L)>5 & max(L$V2)>100)
       {
         cc=cc+1
-        Lj <- read.table(paste0(files2[j],".L"))$V1
+
+	if (filter == 1) {
+	   AllLs <- read.table(paste0(files1[i],".all.L"))$V1
+	   filterFile=read.table(paste("/cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/data/processed/toFilterMash/",
+	   species1,"/",species1,"-",country1,"/toFilter.txt"),sep='')
+	   Lj=sum(AllLs$Length[which(AllLs$ID %in% filterFile$V1)])
+	}else{
+           Lj <- read.table(paste0(files2[j],".L"))$V1
+	}
         p <- weighted.hist(x=log(L$V2),w=L$V1,breaks=20,plot=FALSE)
         r <- exp(p$mids)
         m <- p$counts/diff(exp(p$breaks))/Li/Lj

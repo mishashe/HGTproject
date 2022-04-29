@@ -56,7 +56,7 @@ do
 		           --use-conda \
 			   --cluster-config config_sge.yml \
 			   --cluster "sbatch -N 1 -c 1 -J Mum  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
-			   --jobs 40 \
+			   --jobs 60 \
 			   --rerun-incomplete \
 			   --latency-wait 60
 #			   --resources cp_cores=10 \
