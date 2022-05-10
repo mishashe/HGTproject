@@ -20,7 +20,7 @@ def get_countries(s,mem):
 		with open(myfileHM) as fHM:
 			for i in fHM.readlines():
 				count_list.append(i.rstrip())
-	if mem == "t1" :
+	if mem == "t" :
 		myfileHM = config["DATA_DIR"]+"/processed/"+s+"-country_file_test.txt"
 		with open(myfileHM) as fHM:
 			for i in fHM.readlines():
@@ -62,9 +62,9 @@ rule all:
 		expand("{DATA_DIR}/dist/{SPECIES1}/{SPECIES1}-{COUNTRIES}/dist-all.txt",DATA_DIR=config["DATA_DIR"],COUNTRIES=COUNTRY_PAIRS_SP1,SPECIES1=config["SPECIES1"]),
 		expand("{DATA_DIR}/dist/{SPECIES2}/{SPECIES2}-{COUNTRIES}/dist-all.txt",DATA_DIR=config["DATA_DIR"],COUNTRIES=COUNTRY_PAIRS_SP2,SPECIES2=config["SPECIES2"]),
 		expand("{DATA_DIR}/dist/{SPECIES1}/{SPECIES1}-{COUNTRIES}/dist-close.txt",DATA_DIR=config["DATA_DIR"],COUNTRIES=COUNTRY_PAIRS_SP1,SPECIES1=config["SPECIES1"]),
-		expand("{DATA_DIR}/dist/{SPECIES2}/{SPECIES2}-{COUNTRIES}/dist-close.txt",DATA_DIR=config["DATA_DIR"],COUNTRIES=COUNTRY_PAIRS_SP2,SPECIES2=config["SPECIES2"])
+		expand("{DATA_DIR}/dist/{SPECIES2}/{SPECIES2}-{COUNTRIES}/dist-close.txt",DATA_DIR=config["DATA_DIR"],COUNTRIES=COUNTRY_PAIRS_SP2,SPECIES2=config["SPECIES2"]),
 		expand("{DATA_DIR}/processed/toFilterMash/{SPECIES1}/{SPECIES1}-{COUNTRY1}/toFilter.txt",DATA_DIR=config["DATA_DIR"],COUNTRY1=COUNTRY1,SPECIES1=config["SPECIES1"]),
-		expand("{DATA_DIR}/processed/toFilterMash/{SPECIES1}/{SPECIES2}-{COUNTRY2}/toFilter.txt",DATA_DIR=config["DATA_DIR"],COUNTRY2=COUNTRY2,SPECIES2=config["SPECIES2"])
+		expand("{DATA_DIR}/processed/toFilterMash/{SPECIES2}/{SPECIES2}-{COUNTRY2}/toFilter.txt",DATA_DIR=config["DATA_DIR"],COUNTRY2=COUNTRY2,SPECIES2=config["SPECIES2"])
 
 
 rule sketch:
@@ -83,7 +83,7 @@ rule mash:
 		sketch1=directory(expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY1}}-sketch/",DATA_DIR=config["DATA_DIR"])),
 		sketch2=directory(expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY2}}-sketch/",DATA_DIR=config["DATA_DIR"]))
 	output:
-		dist1=expand("{DATA_DIR}/dist/{{SPECIES1}}/{{SPECIES}}-{{COUNTRY1}}-{{COUNTRY2}}/dist-all.txt",DATA_DIR=config["DATA_DIR"])
+		dist1=expand("{DATA_DIR}/dist/{{SPECIES}}/{{SPECIES}}-{{COUNTRY1}}-{{COUNTRY2}}/dist-all.txt",DATA_DIR=config["DATA_DIR"])
 	conda:
 		config["CONDA_FILE"]
 	shell:
@@ -95,24 +95,33 @@ rule mash_low:
 		sketch1=directory(expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY1}}-sketch/",DATA_DIR=config["DATA_DIR"])),
 		sketch2=directory(expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY2}}-sketch/",DATA_DIR=config["DATA_DIR"]))
 	output:
-		dist1=expand("{DATA_DIR}/dist/{{SPECIES1}}/{{SPECIES}}-{{COUNTRY1}}-{{COUNTRY2}}/dist-close.txt",DATA_DIR=config["DATA_DIR"])
+		dist1=expand("{DATA_DIR}/dist/{{SPECIES}}/{{SPECIES}}-{{COUNTRY1}}-{{COUNTRY2}}/dist-close.txt",DATA_DIR=config["DATA_DIR"])
 	conda:
 		config["CONDA_FILE"]
 	shell:
 		"""mkdir -p {config[DATA_DIR]}/dist/{wildcards.SPECIES}/{wildcards.SPECIES}-{wildcards.COUNTRY1}-{wildcards.COUNTRY2}
 		bash {config[CODE_DIR]}mash-low-dist.sh {input.sketch1} {input.sketch2} {output.dist1} """
 
-#############
-## This cannot work cause it should inherit ALL countries dist dir as input!! Needs to fix this
-
 rule filter:
 	input:
-		dist1=expand("{DATA_DIR}/dist/{{SPECIES1}}/{{SPECIES}}-{{COUNTRY1}}-{{COUNTRY2}}/dist-close.txt",DATA_DIR=config["DATA_DIR"])
+		dist1=expand("{DATA_DIR}/dist/{SPECIES}/{SPECIES}-{{COUNTRY_QUERY}}-{COUNTRY_TEST}/dist-close.txt",DATA_DIR=config["DATA_DIR"],COUNTRY_TEST = COUNTRY1, SPECIES = config["SPECIES1"])
 	output:
-		filt=expand("{DATA_DIR}/processed/toFilterMash/{{SPECIES}}/{{SPECIES}}-{{COUNTRY}}/toFilter.txt",DATA_DIR=config["DATA_DIR"])
+		filt=expand("{DATA_DIR}/processed/toFilterMash/{SPECIES}/{SPECIES}-{{COUNTRY_QUERY}}/toFilter.txt",DATA_DIR=config["DATA_DIR"], SPECIES = config["SPECIES1"], COUNTRY_TEST = COUNTRY1)
 	conda:
 		config["CONDA_FILE"]
 	shell:
-		"""python {config[CODE_DIR]}/generate_filter_list.py --species1 {wildcards.SPECIES1} \
-		--country1 {wildcards.COUNTRY1}"""
+		"""python {config[CODE_DIR]}/generate_filter_list.py --species1 {config[SPECIES1]} \
+		--country1 {wildcards.COUNTRY_QUERY}"""
+
+
+rule filterbis:
+	input:
+		dist1=expand("{DATA_DIR}/dist/{SPECIES}/{SPECIES}-{{COUNTRY_QUERY}}-{COUNTRY_TEST}/dist-close.txt",DATA_DIR=config["DATA_DIR"],COUNTRY_TEST = COUNTRY2, SPECIES = config["SPECIES2"])
+	output:
+		filt=expand("{DATA_DIR}/processed/toFilterMash/{SPECIES}/{SPECIES}-{{COUNTRY_QUERY}}/toFilter.txt",DATA_DIR=config["DATA_DIR"], SPECIES = config["SPECIES2"],COUNTRY_TEST = COUNTRY2)
+	conda:
+		config["CONDA_FILE"]
+	shell:
+		"""python {config[CODE_DIR]}/generate_filter_list.py --species1 {config[SPECIES2]} \
+		--country1 {wildcards.COUNTRY_QUERY}"""
 	
