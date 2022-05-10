@@ -6,7 +6,7 @@ out=$3
 
 for i in `ls $ref/*msh`
 do
-mash dist $i $query/*msh -s 10000 >>$out
+mash dist $i $query/*msh -s 1000 >>$out
 echo $i $query
 date
 done
