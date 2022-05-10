@@ -86,11 +86,10 @@ rule mummerHighMem:
 
 rule filterHighMem:
 	input:
-		mum=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"])
-
+		mum=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"]),
+		filtFile=expand("{DATA_DIR}/processed/toFilterMash/{{SPECIES1}}/{{SPECIES1}}-{{COUNTRY1}}/toFilter.txt",DATA_DIR=config["DATA_DIR"])
 	output:
 		hfilt=expand("{DATA_DIR}/processed/mummerHighMem/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum.h-filtered-mash",DATA_DIR=config["DATA_DIR"]),
-		filtFile=expand("{DATA_DIR}/processed/toFilterMash/{{SPECIES1}}/{{SPECIES1}}-{{COUNTRY1}}/toFilter.txt",DATA_DIR=config["DATA_DIR"])
 
 	conda:
 		config["CONDA_FILE"]
@@ -102,11 +101,11 @@ rule filterHighMem:
 
 rule filterlowMem:
 	input:
-		mum=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"])
+		mum=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum",DATA_DIR=config["DATA_DIR"]),
+		filtFile=expand("{DATA_DIR}/processed/toFilterMash/{{SPECIES1}}/{{SPECIES1}}-{{COUNTRY1}}/toFilter.txt",DATA_DIR=config["DATA_DIR"])
 
 	output:
 		hfilt=expand("{DATA_DIR}/processed/mummer/{{SPECIES1}}_{{SPECIES2}}/{{SPECIES1}}-{{COUNTRY1}}_{{SPECIES2}}-{{COUNTRY2}}.mum.h-filtered-mash",DATA_DIR=config["DATA_DIR"]),
-		filtFile=expand("{DATA_DIR}/processed/toFilterMash/{{SPECIES1}}/{{SPECIES1}}-{{COUNTRY1}}/toFilter.txt",DATA_DIR=config["DATA_DIR"])
 	conda:
 		config["CONDA_FILE"]
 	shell:
