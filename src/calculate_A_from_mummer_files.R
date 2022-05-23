@@ -72,10 +72,20 @@ if (file.exists(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,
   cc2=0
 for (i in 1:length(files1)) {
 
+
+#"~/HGTnew","data","processed",species1,paste0("*",species1,"_*.fasta")
+country1 = gsub(x=files1[i],paste(".*processed/",species1,"/",species1,"_",sep=""),"")
+country1 = gsub(x=country1,".fasta","")
+print(paste("file",files1[i]))
+print(paste("country",country1))
+
  if (filter == 1) {  
-   AllLs <- read.table(paste0(files1[i],".all.L"))$V1
+  print(files1[i])
+   AllLs <- read.table(paste0(files1[i],".all.L"))
+  print(head(AllLs))
    filterFile=read.table(paste("/cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/data/processed/toFilterMash/",
-   species1,"/",species1,"-",country1,"/toFilter.txt"),sep='')
+   species1,"/",species1,"-",country1,"/toFilter.txt",sep=''))
+  #print(filterFile)
    Li=sum(AllLs$Length[which(AllLs$ID %in% filterFile$V1)])
  }else{
    Li <- read.table(paste0(files1[i],".L"))$V1
@@ -102,7 +112,9 @@ for (i in 1:length(files1)) {
     print(paste(sample_i,sample_j))
     if (length(filename)>0 && file.info(filename)$size > 0){
       print(paste0(sample_i," ",sample_j))
+     print(filename)
       L <- read.table(filename)
+    print("opening?")
       L <- L[!is.na(as.numeric(L$V2)),]; L$V2 <- as.numeric(L$V2);  L$V1 <- as.numeric(L$V1); 
       
       cc2=cc2+1
@@ -140,6 +152,7 @@ for (i in 1:length(files1)) {
     }
   }
 }
+
         
         countries <- unique(c(as.character(Prefactor$species1),as.character(Prefactor$species2)))
         PrefactorMatrix <- matrix(NA,nrow=length(countries),ncol=length(countries))
