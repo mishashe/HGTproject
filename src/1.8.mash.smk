@@ -80,8 +80,8 @@ rule sketch:
 
 rule mash:
 	input:
-		sketch1=directory(expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY1}}-sketch/",DATA_DIR=config["DATA_DIR"])),
-		sketch2=directory(expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY2}}-sketch/",DATA_DIR=config["DATA_DIR"]))
+		sketch1=expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY1}}-sketch/",DATA_DIR=config["DATA_DIR"]),
+		sketch2=expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY2}}-sketch/",DATA_DIR=config["DATA_DIR"])
 	output:
 		dist1=expand("{DATA_DIR}/dist/{{SPECIES}}/{{SPECIES}}-{{COUNTRY1}}-{{COUNTRY2}}/dist-all.txt",DATA_DIR=config["DATA_DIR"])
 	conda:
@@ -92,8 +92,8 @@ rule mash:
 
 rule mash_low:
 	input:
-		sketch1=directory(expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY1}}-sketch/",DATA_DIR=config["DATA_DIR"])),
-		sketch2=directory(expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY2}}-sketch/",DATA_DIR=config["DATA_DIR"]))
+		sketch1=expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY1}}-sketch/",DATA_DIR=config["DATA_DIR"]),
+		sketch2=expand("{DATA_DIR}/tmp/{{SPECIES}}-{{COUNTRY2}}-sketch/",DATA_DIR=config["DATA_DIR"])
 	output:
 		dist1=expand("{DATA_DIR}/dist/{{SPECIES}}/{{SPECIES}}-{{COUNTRY1}}-{{COUNTRY2}}/dist-close.txt",DATA_DIR=config["DATA_DIR"])
 	conda:
