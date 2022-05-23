@@ -45,9 +45,9 @@ do
 		           --use-conda \
 			   --cluster-config config_sge.yml \
 			   --cluster "sbatch -N 1 -c 1 -J Mash  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
-			   --jobs 30 \
+			   --jobs 60 \
 			   --rerun-incomplete \
-			   --latency-wait 60 
+			   --latency-wait 120 
 
 
 			snakemake -s ~/HGTnew/HGTproject/src/2.compare_genome.smk -n --unlock
@@ -68,7 +68,7 @@ do
 			   --cluster "sbatch -N 1 -c 1 -J CalcA  -o $LOGDIR/%j.log -t {cluster.time} --mem {cluster.mem}" \
 			   --jobs 1 \
 			   --rerun-incomplete \
-			   --latency-wait 30
+			   --latency-wait 120
 		fi
 	done
 done
