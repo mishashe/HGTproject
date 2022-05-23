@@ -10,4 +10,6 @@ CODE_DIR: /cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/HGTproject/src/
 
 
 SPECIES1: EscherichiaColi
-SPECIES2 : KlebsiellaPneumoniae
+#SPECIES2 : KlebsiellaPneumoniae
+
+SPECIES2: Pseudomonas
