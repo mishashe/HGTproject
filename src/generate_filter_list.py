@@ -17,7 +17,7 @@ parser.add_option( "--species1",dest="species1",action="store",
 		  help="Ref Species")
 parser.add_option( "--country1",dest="country1",action="store",
 		  help="Species country")
-parser.add_option( "--threshold","-t",dest="threshold",action="store",default=0.01,
+parser.add_option( "--threshold","-t",dest="threshold",action="store",default=0.002,
 		  help="Distance Threshold below which files should be filtered out")
 
 
