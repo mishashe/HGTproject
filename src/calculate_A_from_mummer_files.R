@@ -33,14 +33,6 @@ if (filter == 1){
 }
 system(paste0("mkdir -p ~/HGTnew/plots/",species1,"_",species2,suffix))
  
-# files <- list.files(path=paste0("~/HGTnew/data/processed/",species1,"/"),
-#                     pattern=paste("*.fasta$"), full.names = TRUE)
-# foreach (file = files) %do%
-# {
-#   system(paste0("seqkit seq -m 40000 ",file," > ",file,".4e4.fasta"))
-# }
-
-
 toRm=c()
 for (i in 1:length(files2)) {
   print(i)
@@ -73,7 +65,6 @@ if (file.exists(paste0("~/HGTnew/data/processed/results/",species1,"_",species2,
 for (i in 1:length(files1)) {
 
 
-#"~/HGTnew","data","processed",species1,paste0("*",species1,"_*.fasta")
 country1 = gsub(x=files1[i],paste(".*processed/",species1,"/",species1,"_",sep=""),"")
 country1 = gsub(x=country1,".fasta","")
 print(paste("file",files1[i]))
@@ -81,12 +72,19 @@ print(paste("country",country1))
 
  if (filter == 1) {  
   print(files1[i])
-   AllLs <- read.table(paste0(files1[i],".all.L"))
+   AllLs <- read.table(paste0(files1[i],".all.L"),head=T)
   print(head(AllLs))
-   filterFile=read.table(paste("/cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/data/processed/toFilterMash/",
-   species1,"/",species1,"-",country1,"/toFilter.txt",sep=''))
-  #print(filterFile)
-   Li=sum(AllLs$Length[which(AllLs$ID %in% filterFile$V1)])
+   filterInfo=paste("/cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/data/processed/toFilterMash/",
+	   species1,"/",species1,"-",country1,"/toFilter.txt",sep='')
+
+	  size=file.info(filterInfo)$size
+	 print(size)
+	  if (size>1){
+		filterFile=read.table(filterInfo)
+   		Li=sum(AllLs$Length[which(AllLs$ID %in% filterFile$V1 == F)])
+	  }else{
+	     Li=sum(AllLs$Length)
+	 }
  }else{
    Li <- read.table(paste0(files1[i],".L"))$V1
 }
@@ -108,35 +106,41 @@ print(paste("country",country1))
         filename <- Sys.glob(file.path("~/HGTnew/data/processed/mummer*",paste0(species1,"_",species2),
                                    paste0(species1,'-',country_i,"_",species2,'-',country_j,".h")))
   }
-    print(filename)
     print(paste(sample_i,sample_j))
     if (length(filename)>0 && file.info(filename)$size > 0){
       print(paste0(sample_i," ",sample_j))
-     print(filename)
       L <- read.table(filename)
     print("opening?")
       L <- L[!is.na(as.numeric(L$V2)),]; L$V2 <- as.numeric(L$V2);  L$V1 <- as.numeric(L$V1); 
-      
       cc2=cc2+1
       if (nrow(L)>5 & max(L$V2)>100)
       {
         cc=cc+1
 
 	if (filter == 1) {
-	   AllLs <- read.table(paste0(files1[i],".all.L"))$V1
-	   filterFile=read.table(paste("/cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/data/processed/toFilterMash/",
-	   species1,"/",species1,"-",country1,"/toFilter.txt"),sep='')
-	   Lj=sum(AllLs$Length[which(AllLs$ID %in% filterFile$V1)])
+	   AllLs <- read.table(paste0(files1[i],".all.L"),head=T)
+
+           filterInfo=paste("/cluster/CBIO/data1/fmassip/HGT/ProjectMisha/HGTnew/data/processed/toFilterMash/",
+	   species2,"/",species2,"-",country_j,"/toFilter.txt",sep='')
+
+	  size=file.info(filterInfo)$size
+	print(size)
+	  if (size>1){
+		filterFile=read.table(filterInfo)
+	   Lj=sum(AllLs$Length[which(AllLs$ID %in% filterFile$V1 == F)])
+	  }else{
+	   Lj=sum(AllLs$Length)
+	  }
 	}else{
            Lj <- read.table(paste0(files2[j],".L"))$V1
 	}
+
+   	print("file Err?")      
         p <- weighted.hist(x=log(L$V2),w=L$V1,breaks=20,plot=FALSE)
         r <- exp(p$mids)
         m <- p$counts/diff(exp(p$breaks))/Li/Lj
         A <- 100*sum(L$V1[L$V2>=100]*L$V2[L$V2>=100])/Li/Lj
 #       B <- 300*sum(L$V1[L$V2>=300]*L$V2[L$V2>=300])/Li/Lj
-
-        
         pdf(paste0("~/HGTnew/plots/",species1,"_",species2,suffix,"/",sample_i,"_",sample_j,".pdf"))
         
         # plot(r,log10(m));
