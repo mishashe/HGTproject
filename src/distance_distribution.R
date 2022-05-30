@@ -5,13 +5,13 @@
 #"EscherichiaColi")
 
 
-allSpecies=c("KlebsiellaPneumoniae","Mycobacterium",
+allSpecies=c("EscherichiaColi",
+"KlebsiellaPneumoniae","Mycobacterium",
 "Pseudomonas",
 "Salmonella",
 "Staphylococcus",
 "Streptococcus",
-"Vibrio",
-"EscherichiaColi")
+"Vibrio")
 #
 for (species1 in allSpecies){
 
